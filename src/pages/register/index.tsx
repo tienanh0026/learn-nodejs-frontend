@@ -1,25 +1,31 @@
-import { login } from "@modules/api/login";
+import { register } from "@modules/api/register";
 import { ErrorResponse } from "@modules/libs/axios/types";
 import axios from "axios";
 import { useId, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Cookies from "cookies-js";
+import { useNavigate } from "react-router-dom";
 
-export default function LoginPage() {
+function RegisterPage() {
     const [mail, setMail] = useState("");
+    const [name, setName] = useState("");
+
     const [password, setPassword] = useState("");
     const mailId = useId();
     const passwordId = useId();
+    const nameId = useId();
+
     const navigate = useNavigate();
     const [error, setError] = useState<string>();
     const [loading, setLoading] = useState(false);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         try {
-            e.preventDefault();
             setLoading(true);
-            const response = await login({ email: mail, password: password });
-            Cookies.set("access-token", response.data.data.accessToken);
-            Cookies.set("refresh-token", response.data.data.refreshToken);
+            e.preventDefault();
+            await register({
+                email: mail,
+                password,
+                name,
+            });
             navigate("/");
         } catch (error) {
             if (axios.isAxiosError<ErrorResponse>(error)) {
@@ -35,7 +41,9 @@ export default function LoginPage() {
                 className="flex flex-col gap-2 items-center"
                 onSubmit={handleSubmit}
             >
-                <h1 className="font-bold text-center text-2xl">LOGIN PAGE</h1>
+                <h1 className="font-bold text-center text-2xl">
+                    REGISTER PAGE
+                </h1>
                 <label htmlFor={mailId} className="flex flex-col gap-2 mt-4">
                     <p className="font-bold">Email</p>
                     <input
@@ -45,6 +53,18 @@ export default function LoginPage() {
                         value={mail}
                         onChange={(e) => {
                             setMail(e.target.value);
+                        }}
+                    />
+                </label>
+                <label htmlFor={nameId} className="flex flex-col gap-2">
+                    <p className="font-bold">Name</p>
+                    <input
+                        className="p-2 rounded-md py-1"
+                        id={nameId}
+                        name="text"
+                        value={name}
+                        onChange={(e) => {
+                            setName(e.target.value);
                         }}
                     />
                 </label>
@@ -67,13 +87,9 @@ export default function LoginPage() {
                 >
                     Submit
                 </button>
-                <p>
-                    If you don't have account,{" "}
-                    <Link className="underline" to="/register">
-                        click here
-                    </Link>
-                </p>
             </form>
         </div>
     );
 }
+
+export default RegisterPage;
