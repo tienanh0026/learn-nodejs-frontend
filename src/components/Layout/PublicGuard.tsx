@@ -3,11 +3,11 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Outlet, useNavigate } from "react-router-dom";
 
-function AuthGuard() {
+function PublicGuard() {
   const { isAuthenticated } = useSelector(authState);
   const navigate = useNavigate();
   useEffect(() => {
-    if (!isAuthenticated) navigate("/login");
+    if (isAuthenticated) navigate("/");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
   return (
@@ -17,4 +17,4 @@ function AuthGuard() {
   );
 }
 
-export default AuthGuard;
+export default PublicGuard;
