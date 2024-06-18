@@ -11,24 +11,24 @@ function HomePage() {
     Cookies.set("refresh-token", "");
   };
   return (
-    <div className='size-full flex flex-col'>
+    <div className="size-full flex flex-col">
       {user ? (
         <>
-          <div className='w-full flex justify-end'>
+          <div className="w-full flex justify-end">
             <button
               onClick={handleLogout}
-              className='p-2 px-3 rounded-md bg-blue-500 text-white font-medium'
+              className="p-2 px-3 rounded-md bg-blue-500 text-white font-medium"
             >
               Logout
             </button>
           </div>
           <p>
-            Hi, <span className='font-medium text-orange-400'>{user.name}</span>
+            Hi, <span className="font-medium text-orange-400">{user.name}</span>
           </p>
-          <div className='h-full flex justify-center items-center mx-8'>
+          <div className="h-full flex justify-center items-center mx-8">
             <Link
-              to='/room-list'
-              className='bg-blue-500 text-white rounded-md p-2 w-full text-center max-w-72'
+              to="/room-list"
+              className="bg-blue-500 text-white rounded-md p-2 w-full text-center max-w-72"
             >
               Room List
             </Link>
@@ -37,8 +37,11 @@ function HomePage() {
       ) : (
         <>
           <p>
-            You're not logging in, <Link to={"/login"}>click here</Link> to log
-            in
+            You're not logging in,&nbsp;
+            <Link to={"/login"} className="underline">
+              click here
+            </Link>
+            &nbsp;to log in
           </p>
         </>
       )}

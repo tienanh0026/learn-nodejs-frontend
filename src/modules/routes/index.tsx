@@ -1,9 +1,11 @@
 import AuthGuard from "@components/Layout/AuthGuard";
 import Layout from "@components/Layout/Layout";
 import PublicGuard from "@components/Layout/PublicGuard";
+import RoomLayout from "@components/PartsCollection/RoomLayout";
 import HomePage from "@pages/home";
 import LoginPage from "@pages/login";
 import RegisterPage from "@pages/register";
+import RoomChat from "@pages/room-chat";
 import RoomListPage from "@pages/room-list";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -13,15 +15,17 @@ function RouterConfig() {
       <Routes>
         <Route element={<Layout />}>
           <Route>
-            <Route path='/' element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
             <Route element={<PublicGuard />}>
-              <Route path='/register' element={<RegisterPage />} />
-              <Route path='/login' element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
             </Route>
           </Route>
           <Route element={<AuthGuard />}>
-            <Route path='/room-list' element={<RoomListPage />} />
-            <Route path='/room/:roomId' element={<>room</>} />
+            <Route element={<RoomLayout />}>
+              <Route path="/room-list" element={<RoomListPage />} />
+              <Route path="/room/:roomId" element={<RoomChat />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

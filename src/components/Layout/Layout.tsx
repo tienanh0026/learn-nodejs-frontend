@@ -1,11 +1,12 @@
 import { getCurrentUser } from "@modules/api/currentUser";
-import { setAuthState } from "@modules/redux/AuthSlice/AuthSlice";
+import { socket } from "@modules/libs/socket";
+import { authState, setAuthState } from "@modules/redux/AuthSlice/AuthSlice";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
-
 function Layout() {
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useSelector(authState);
   const dispatch = useDispatch();
   useEffect(() => {
     getCurrentUser()
@@ -20,13 +21,20 @@ function Layout() {
       .finally(() => {
         setIsLoading(false);
       });
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  useEffect(() => {
+    if (!isLoading && user) {
+      socket.connect();
+      console.log("connect");
+    }
+  }, [isLoading, user]);
   return (
-    <main className='size-full bg-gray-50 h-svh p-12'>
-      <div className='border-gray- bg-gray-200 rounded-lg h-full shadow-[rgba(0,0,0,0.24)_0px_3px_8px] p-6'>
+    <main className="size-full bg-gray-50 h-svh p-12">
+      <div className="border-gray- bg-gray-200 rounded-lg h-full shadow-[rgba(0,0,0,0.24)_0px_3px_8px] p-6">
         {isLoading ? (
-          <div className='size-full flex items-center justify-center font-bold'>
+          <div className="size-full flex items-center justify-center font-bold">
             Loading...
           </div>
         ) : (
