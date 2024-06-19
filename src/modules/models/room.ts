@@ -1,3 +1,5 @@
+import { User } from "./user";
+
 type Room = {
   id: string;
   ownerId: string;
@@ -8,4 +10,8 @@ type Room = {
   deletedAt: Date;
 };
 
-export type { Room };
+type RoomDetail = Room & {
+  owner: Pick<User, "id" | "email" | "name">;
+};
+
+export type { Room, RoomDetail };
