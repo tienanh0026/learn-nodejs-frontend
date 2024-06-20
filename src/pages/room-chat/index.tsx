@@ -17,8 +17,8 @@ function RoomChat() {
 
   const { roomId } = useParams();
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (!roomId) return;
     e.preventDefault();
+    if (!roomId || !content) return;
     try {
       await sendMessage({
         content,
