@@ -24,8 +24,9 @@
       "@pages/*": ["pages/*"],
       "@components/*": ["components/*"],
       "@modules/*": ["modules/*"],
-      "@app/*": ["./*"],
-    }
+      "@app/*": ["./*"]
+    },
+    "types": ["vite-plugin-pwa/react"]
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
