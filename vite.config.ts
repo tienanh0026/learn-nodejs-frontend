@@ -9,7 +9,8 @@ export default defineConfig({
     tsconfigPaths(),
     VitePWA({
       injectRegister: "script",
-      filename: "service-worker.ts",
+      srcDir: 'src',
+      filename: 'service-worker.ts',
     }),
   ],
 });

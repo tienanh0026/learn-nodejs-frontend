@@ -1,19 +1,9 @@
-declare const self: ServiceWorkerGlobalScope;
-
-self.addEventListener("fetch", (e: FetchEvent) => {
-  e.respondWith(
-    (async () => {
-      // Handling fetch
-      console.log(`Handling req for '${e.request.url}'`);
-      //   const cachedRes = await caches.match(e.request, {
-      //     cacheName: CACHE_NAME,
-      //   });
-      //   if (cachedRes) {
-      //     console.log(`Serving cached response for '${e.request.url}'`);
-      //   }
-      return await fetch(e.request);
-    })()
-  );
-});
-
-export default null;
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .then((registration) => {
+      console.log('Custom service worker registered with scope:123123', registration.scope);
+    })
+    .catch((error) => {
+      console.error('Error registering custom service worker:', error);
+    });
+}
