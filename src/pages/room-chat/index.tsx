@@ -42,13 +42,17 @@ function RoomChat() {
   }, [roomId]);
 
   useEffect(() => {
-    if (roomId)
-      socket.on(`${roomId}-message`, (e: SocketMessage) => {
+    if (roomId && socket.active)
+      socket.connect().on(`${roomId}-message`, (e: SocketMessage) => {
+        console.log(e);
+
         setMessageList((prev) => {
           if (!prev) return [e];
           return [...prev, e];
         });
       });
+    console.log("runnnnn", socket.active);
+
     return () => {
       socket.off(`${roomId}-message`);
     };
@@ -56,50 +60,50 @@ function RoomChat() {
 
   return (
     <>
-      <div className='size-full flex flex-col'>
-        <div className='w-full p-2 px-4 border-b border-gray-300 flex justify-between gap-2'>
-          <div className='flex gap-2 items-center'>
-            <Link to={"/room-list"} className='hover:underline p-1'>
-              <ChevronLeftIcon className='size-5' />
+      <div className="size-full flex flex-col">
+        <div className="w-full p-2 px-4 border-b border-gray-300 flex justify-between gap-2">
+          <div className="flex gap-2 items-center">
+            <Link to={"/room-list"} className="hover:underline p-1">
+              <ChevronLeftIcon className="size-5" />
             </Link>
-            <h2 className='font-semibold'>{roomDetail?.name}</h2>
+            <h2 className="font-semibold">{roomDetail?.name}</h2>
           </div>
           <button
-            type='button'
+            type="button"
             onClick={async () => {
               serviceWorker.getUserSubscription().then((value) => {
-                const key = value?.getKey("p256dh") || "";
-                if (!value || !roomId || !key) return;
+                if (!value || !roomId) return;
+                const key = value.toJSON().keys;
+                if (!key) return;
                 getPushNoti({
                   roomId: roomId,
-                  endpoint: value?.endpoint,
+                  endpoint: value.endpoint,
                   key: key,
-                  subscriptionId: 'value'.
-                }).then(()=>{
-                  //
-                })
+                });
               });
             }}
           >
             noti
           </button>
         </div>
-        <div className='flex-1 flex flex-col gap-2 p-4'>
-          {messageList &&
-            messageList.map((message) => (
-              <MessageCard message={message} key={message.id} />
-            ))}
+        <div className="flex-1 flex flex-col gap-2 p-4 overflow-auto">
+          <div className="flex flex-col gap-2">
+            {messageList &&
+              messageList.map((message) => (
+                <MessageCard message={message} key={message.id} />
+              ))}
+          </div>
         </div>
-        <form className='flex gap-2 p-4' onSubmit={handleSendMessage}>
+        <form className="flex gap-2 p-4" onSubmit={handleSendMessage}>
           <input
-            placeholder='Enter message'
+            placeholder="Enter message"
             value={content}
             onChange={(e) => {
               setContent(e.target.value);
             }}
-            className='flex-1 focus:outline-none focus:ring-1 focus:ring-gray-600 rounded-md p-2 border border-gray-500'
+            className="flex-1 focus:outline-none focus:ring-1 focus:ring-gray-600 rounded-md p-2 border border-gray-500"
           />
-          <button className='p-2 bg-blue-600 font-medium text-white rounded-md border border-black'>
+          <button className="p-2 bg-blue-600 font-medium text-white rounded-md border border-black">
             Send
           </button>
         </form>

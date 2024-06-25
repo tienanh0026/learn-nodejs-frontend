@@ -52,40 +52,40 @@ function Layout() {
   return (
     <>
       <header
-        className='w-full bg-white border-b border-gray-200 flex justify-between'
+        className="w-full bg-white border-b border-gray-200 flex justify-between"
         style={{
           height: HEADER_HEIGHT,
         }}
       >
         <Link
-          to=''
-          className='hover:underline p-1 h-full flex items-center  px-3'
+          to=""
+          className="hover:underline p-1 h-full flex items-center  px-3"
           onClick={(e) => {
             e.preventDefault();
             navigate(-1);
           }}
         >
-          <ChevronLeftIcon className='size-6' />
+          <ChevronLeftIcon className="size-6" />
         </Link>
         {user && (
           <Link
-            className='p-1 h-full flex items-center px-3'
+            className="p-1 h-full flex items-center px-3"
             to={"/login"}
             onClick={handleLogout}
           >
-            <ArrowRightEndOnRectangleIcon className='size-6' />
+            <ArrowRightEndOnRectangleIcon className="size-6" />
           </Link>
         )}
       </header>
       <main
-        className='size-full bg-gray-50 h-svh p-12'
+        className="size-full bg-gray-50 h-svh p-12"
         style={{
           maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
         }}
       >
-        <div className='border-gray- bg-gray-200 rounded-lg h-full shadow-[rgba(0,0,0,0.24)_0px_3px_8px] p-6'>
+        <div className="border-gray- bg-gray-200 rounded-lg h-full shadow-[rgba(0,0,0,0.24)_0px_3px_8px] p-6">
           {isLoading ? (
-            <div className='size-full flex items-center justify-center font-bold'>
+            <div className="size-full flex items-center justify-center font-bold">
               Loading...
             </div>
           ) : (

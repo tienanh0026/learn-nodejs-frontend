@@ -33,12 +33,15 @@ export default function usePushNotifications() {
     });
   };
   const onClickSusbribeToPushNotification = () => {
+    console.log("qweqwewq");
+
     serviceWorker
       .createNotificationSubscription()
       .then(function (subscrition) {
         console.log("sub ", subscrition);
         console.log(subscrition.getKey("p256dh"));
         console.log(subscrition.getKey("auth"));
+        console.log("Subscription JSON:", subscrition.toJSON().keys);
         console.log(subscrition.toJSON());
         setUserSubscription(subscrition);
       })
@@ -46,31 +49,11 @@ export default function usePushNotifications() {
         console.error("Couldnt create the notification subscription", err);
       });
   };
-  const onClickSendSubscriptionToPushServer = () => {
-    // axios
-    //   .post('http://localhost:4000/subscription', { data: userSubscription })
-    //   .then(function (response) {
-    //     setPushServerSubscriptionId(response.data.id);
-    //     setLoading(false);
-    //   })
-    //   .catch((_err) => {
-    //     setLoading(false);
-    //   });
-  };
-  const onClickSendNotification = async () => {
-    // setLoading(true);
-    // axios.get(`http://localhost:4000/subscription/${pushServerSubscriptionId}`).catch((_error) => {
-    //   setLoading(false);
-    // });
-    // setLoading(false);
-  };
 
   return {
     onClickAskUserPermission,
     onClickSusbribeToPushNotification,
-    onClickSendSubscriptionToPushServer,
     pushServerSubscriptionId,
-    onClickSendNotification,
     userConsent,
     pushNotificationSupported,
     userSubscription,

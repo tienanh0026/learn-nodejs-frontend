@@ -5,9 +5,11 @@ type PushNotiResponse = SuccessResponse<null>;
 
 export const getPushNoti = (params: {
   roomId: string;
-  key: ArrayBuffer;
+  key: Record<string, string>;
   endpoint: string;
-  subscriptionId: string;
 }) => {
-  return baseAxios.post<PushNotiResponse>(`/subscribe/room/${params.roomId}`);
+  return baseAxios.post<PushNotiResponse>(`/subscribe/room/${params.roomId}`, {
+    key: params.key,
+    endpoint: params.endpoint,
+  });
 };
