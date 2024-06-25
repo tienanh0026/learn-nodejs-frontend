@@ -2,8 +2,14 @@ export async function askForPermission() {
   return await Notification.requestPermission();
 }
 
+export async function askUserPermission() {
+  return await Notification.requestPermission();
+}
+
 export async function createNotificationSubscription() {
   const serviceWorker = await navigator.serviceWorker.ready;
+  console.log(import.meta.env.VITE_SERVICE_WORKER_PUBLIC);
+  
   return await serviceWorker.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: import.meta.env.VITE_SERVICE_WORKER_PUBLIC,
@@ -24,3 +30,4 @@ export function getUserSubscription() {
 export function isPushNotificationSupported() {
   return "serviceWorker" in navigator && "PushManager" in window;
 }
+

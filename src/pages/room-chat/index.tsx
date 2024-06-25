@@ -9,6 +9,8 @@ import { SocketMessage } from "@modules/models/socket";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
+import * as serviceWorker from "@modules/libs/service-worker";
+import { getPushNoti } from "@modules/api/push-notification";
 
 function RoomChat() {
   const [content, setContent] = useState("");
@@ -55,11 +57,32 @@ function RoomChat() {
   return (
     <>
       <div className='size-full flex flex-col'>
-        <div className='w-full p-2 px-4 border-b border-gray-300 flex items-center gap-2'>
-          <Link to={"/room-list"} className='hover:underline p-1'>
-            <ChevronLeftIcon className='size-5' />
-          </Link>
-          <h2 className='font-semibold'>{roomDetail?.name}</h2>
+        <div className='w-full p-2 px-4 border-b border-gray-300 flex justify-between gap-2'>
+          <div className='flex gap-2 items-center'>
+            <Link to={"/room-list"} className='hover:underline p-1'>
+              <ChevronLeftIcon className='size-5' />
+            </Link>
+            <h2 className='font-semibold'>{roomDetail?.name}</h2>
+          </div>
+          <button
+            type='button'
+            onClick={async () => {
+              serviceWorker.getUserSubscription().then((value) => {
+                const key = value?.getKey("p256dh") || "";
+                if (!value || !roomId || !key) return;
+                getPushNoti({
+                  roomId: roomId,
+                  endpoint: value?.endpoint,
+                  key: key,
+                  subscriptionId: 'value'.
+                }).then(()=>{
+                  //
+                })
+              });
+            }}
+          >
+            noti
+          </button>
         </div>
         <div className='flex-1 flex flex-col gap-2 p-4'>
           {messageList &&

@@ -8,7 +8,7 @@ import { Outlet } from "react-router-dom";
 
 function RoomLayout() {
   const [roomList, setRoomList] = useState<Room[]>();
-  usePushNotification();
+  const  {onClickSusbribeToPushNotification}= usePushNotification();
   useEffect(() => {
     const fetchRoomList = async () => {
       const response = await getRoomList();
@@ -28,6 +28,7 @@ function RoomLayout() {
 
   return (
     <div className="flex h-full gap-4">
+      <button type="button" onClick={onClickSusbribeToPushNotification}>push noti</button>
       <div className="w-[30%] flex flex-col gap-2">
         {roomList &&
           roomList.map((room) => <RoomCard room={room} key={room.id} />)}

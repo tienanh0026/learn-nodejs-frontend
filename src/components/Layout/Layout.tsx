@@ -14,7 +14,6 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import Cookies from "cookies-js";
-import usePushNotification from "@modules/libs/service-worker/hooks";
 
 function Layout() {
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +34,6 @@ function Layout() {
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  usePushNotification()
   useEffect(() => {
     if (!isLoading && user) {
       socket.connect();
