@@ -1,4 +1,5 @@
 import { getRefreshToken } from "@modules/api/refreshToken";
+import { COOKIES_EXPIRED_AT } from "@modules/constants/layout";
 import { clearAuthState } from "@modules/redux/AuthSlice/AuthSlice";
 import { store } from "@modules/redux/store";
 import axios from "axios";
@@ -35,7 +36,9 @@ const onResponseError = async (error: AxiosError) => {
   }
   try {
     const response = await getRefreshToken(refreshToken);
-    Cookies.set("access-token", response.data.data.accessToken);
+    Cookies.set("access-token", response.data.data.accessToken, {
+      expires: COOKIES_EXPIRED_AT,
+    });
     const initialRequest = error.config;
     if (!initialRequest) throw new Error();
     initialRequest.headers.Authorization = `Bearer ${response.data.data.accessToken}`;

@@ -7,6 +7,7 @@ console.log("qdqwdqwdqwdqwdqw");
 
 self.addEventListener("push", (event) => {
   const data = event.data?.json();
+  if (data.silent) return;
   const title = data?.title || "New Notification";
   const options = {
     body: data?.body || "You have a new message",
@@ -17,22 +18,16 @@ self.addEventListener("push", (event) => {
 });
 
 self.addEventListener("notificationclick", (event) => {
-  console.log("Notification clicked:", event);
-  console.log("Clients:", self.clients);
-
   event.notification.close();
-
   event.waitUntil(
     self.clients.matchAll({ type: "window" }).then((clientList) => {
       const data = event.notification.data;
       const roomId = data?.roomId || "";
-
       for (const client of clientList) {
         if (client.url === `/room/${roomId}` && "focus" in client) {
           return client.focus();
         }
       }
-
       if (self.clients.openWindow && roomId) {
         return self.clients.openWindow(`/room/${roomId}`);
       }

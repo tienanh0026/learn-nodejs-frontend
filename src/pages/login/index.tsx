@@ -7,6 +7,7 @@ import Cookies from "cookies-js";
 import { getCurrentUser } from "@modules/api/currentUser";
 import { useDispatch } from "react-redux";
 import { setAuthState } from "@modules/redux/AuthSlice/AuthSlice";
+import { COOKIES_EXPIRED_AT } from "@modules/constants/layout";
 
 export default function LoginPage() {
   const [mail, setMail] = useState("");
@@ -22,8 +23,12 @@ export default function LoginPage() {
       e.preventDefault();
       setLoading(true);
       const response = await login({ email: mail, password: password });
-      Cookies.set("access-token", response.data.data.accessToken);
-      Cookies.set("refresh-token", response.data.data.refreshToken);
+      Cookies.set("access-token", response.data.data.accessToken, {
+        expires: COOKIES_EXPIRED_AT,
+      });
+      Cookies.set("refresh-token", response.data.data.refreshToken, {
+        expires: COOKIES_EXPIRED_AT,
+      });
       const userResponse = await getCurrentUser();
       dispatch(
         setAuthState({ isAuthenticated: true, user: userResponse.data.data })
