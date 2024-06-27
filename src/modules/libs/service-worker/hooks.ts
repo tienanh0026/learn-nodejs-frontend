@@ -32,22 +32,19 @@ export default function usePushNotifications() {
       }
     });
   };
-  const onClickSusbribeToPushNotification = () => {
-    console.log("qweqwewq");
-
-    serviceWorker
-      .createNotificationSubscription()
-      .then(function (subscrition) {
-        console.log("sub ", subscrition);
-        console.log(subscrition.getKey("p256dh"));
-        console.log(subscrition.getKey("auth"));
-        console.log("Subscription JSON:", subscrition.toJSON().keys);
-        console.log(subscrition.toJSON());
-        setUserSubscription(subscrition);
-      })
-      .catch((err) => {
-        console.error("Couldnt create the notification subscription", err);
-      });
+  const onClickSusbribeToPushNotification = async () => {
+    try {
+      const subscrition = await serviceWorker.createNotificationSubscription();
+      console.log("sub ", subscrition);
+      console.log(subscrition.getKey("p256dh"));
+      console.log(subscrition.getKey("auth"));
+      console.log("Subscription JSON:", subscrition.toJSON().keys);
+      console.log(subscrition.toJSON());
+      setUserSubscription(subscrition);
+      return subscrition;
+    } catch (error) {
+      console.error("Couldnt create the notification subscription", error);
+    }
   };
 
   return {

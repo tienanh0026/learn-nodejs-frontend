@@ -1,9 +1,41 @@
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js')
-    .then((registration) => {
-      console.log('Custom service worker registered with scope:123123', registration.scope);
+import { precacheAndRoute } from "workbox-precaching";
+
+declare let self: ServiceWorkerGlobalScope;
+
+precacheAndRoute(self.__WB_MANIFEST);
+console.log("qdqwdqwdqwdqwdqw");
+
+self.addEventListener("push", (event) => {
+  const data = event.data?.json();
+  const title = data?.title || "New Notification";
+  const options = {
+    body: data?.body || "You have a new message",
+    icon: "icon.png",
+    data: data?.data,
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  console.log("Notification clicked:", event);
+  console.log("Clients:", self.clients);
+
+  event.notification.close();
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clientList) => {
+      const data = event.notification.data;
+      const roomId = data?.roomId || "";
+
+      for (const client of clientList) {
+        if (client.url === `/room/${roomId}` && "focus" in client) {
+          return client.focus();
+        }
+      }
+
+      if (self.clients.openWindow && roomId) {
+        return self.clients.openWindow(`/room/${roomId}`);
+      }
     })
-    .catch((error) => {
-      console.error('Error registering custom service worker:', error);
-    });
-}
+  );
+});

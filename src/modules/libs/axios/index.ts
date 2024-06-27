@@ -9,6 +9,8 @@ import Axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import Cookies from "cookies-js";
+console.log(import.meta.env);
+
 const baseAxios: AxiosInstance = Axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
 });
