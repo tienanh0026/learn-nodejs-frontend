@@ -1,9 +1,15 @@
 import baseAxios from "@modules/libs/axios";
-import { SuccessResponse } from "@modules/libs/axios/types";
+import { PaginationResponse, SuccessResponse } from "@modules/libs/axios/types";
 import { Message } from "@modules/models/message";
 
-type MessageListResponse = SuccessResponse<Message[]>;
+type MessageListResponse = SuccessResponse<PaginationResponse<Message[]>>;
 
-export const getMessageList = (roomId: string) => {
-  return baseAxios.get<MessageListResponse>(`/${roomId}/message/list`);
+export const getMessageList = (params: {
+  roomId: string;
+  perPage?: number;
+  page: number;
+}) => {
+  return baseAxios.get<MessageListResponse>(`/${params.roomId}/message/list`, {
+    params,
+  });
 };

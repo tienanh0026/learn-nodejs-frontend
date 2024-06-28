@@ -6,19 +6,27 @@ import { socket } from "@modules/libs/socket";
 import { Message } from "@modules/models/message";
 import { RoomDetail } from "@modules/models/room";
 import { SocketMessage } from "@modules/models/socket";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import { getPushNoti } from "@modules/api/push-notification";
 import usePushNotifications from "@modules/libs/service-worker/hooks";
+import { useLoadMore } from "@components/PartsCollection/InfiniteScroll/hooks";
 
 function RoomChat() {
   const [content, setContent] = useState("");
   const [messageList, setMessageList] = useState<Message[]>();
   const [roomDetail, setRoomDetail] = useState<RoomDetail>();
   const { onClickSusbribeToPushNotification } = usePushNotifications();
-
   const { roomId } = useParams();
+  const [isLoadMore, setIsLoadMore] = useState(false);
+  const topPanelId = useId();
+  const topPanelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const currentPage = useRef({
+    page: 1,
+    totalPage: 1,
+  });
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!roomId || !content) return;
@@ -32,10 +40,33 @@ function RoomChat() {
       //
     }
   };
+
+  const handleLoadMoreMessage = useCallback(() => {
+    if (!roomId) return;
+    getMessageList({ roomId, page: currentPage.current.page + 1 })
+      .then((res) => {
+        currentPage.current = {
+          page: res.data.data.currentPage,
+          totalPage: res.data.data.totalPages,
+        };
+        setMessageList((prevList) => {
+          if (!prevList) return res.data.data.list.reverse();
+          return [...res.data.data.list.reverse(), ...prevList];
+        });
+      })
+      .finally(() => {
+        setIsLoadMore(false);
+      });
+  }, [roomId]);
+
   useEffect(() => {
     if (!roomId) return;
-    getMessageList(roomId).then((response) => {
-      setMessageList(response.data.data);
+    getMessageList({ roomId, page: -1 }).then((response) => {
+      currentPage.current = {
+        page: response.data.data.currentPage,
+        totalPage: response.data.data.totalPages,
+      };
+      setMessageList(response.data.data.list.reverse());
     });
     getRoomDetail(roomId).then((response) => {
       setRoomDetail(response.data.data);
@@ -57,6 +88,17 @@ function RoomChat() {
       socket.off(`${roomId}-message`);
     };
   }, [roomId]);
+
+  useLoadMore({
+    loadMoreElement: topPanelRef.current,
+    onLoadMore: handleLoadMoreMessage,
+    skip: isLoadMore,
+    observerOption: {
+      root: containerRef.current,
+      threshold: 1,
+      rootMargin: "0px",
+    },
+  });
 
   return (
     <>
@@ -96,8 +138,25 @@ function RoomChat() {
             noti
           </button>
         </div>
-        <div className='flex-1 flex flex-col gap-2 p-4 overflow-auto'>
+        {/* {messageList && (
+          <InfiniteScrollWrapper
+            data={messageList}
+            onLoadMore={() => {
+              handleLoadMoreMessage();
+            }}
+            isLoadMore={isLoadMore}
+          >
+            {messageList.map((message) => (
+              <MessageCard message={message} key={message.id} />
+            ))}
+          </InfiniteScrollWrapper>
+        )} */}
+        <div
+          className='flex-1 flex flex-col gap-2 p-4 overflow-auto'
+          ref={containerRef}
+        >
           <div className='flex flex-col gap-2'>
+            <div id={topPanelId} ref={topPanelRef}></div>
             {messageList &&
               messageList.map((message) => (
                 <MessageCard message={message} key={message.id} />
