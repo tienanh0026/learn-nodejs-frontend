@@ -11,6 +11,7 @@ import {
   useDeferredValue,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -34,11 +35,6 @@ function RoomChat() {
   const topPanelId = useId();
   const topPanelRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // const currentPage = useRef<{ page: number; totalPage: number | undefined }>({
-  //   page: 1,
-  //   totalPage: undefined,
-  // });
   const [currentPage, setCurrentPage] = useState<{
     page: number;
     totalPage: number | undefined;
@@ -59,9 +55,7 @@ function RoomChat() {
       //
     }
   };
-  // useEffect(() => {
-  //   console.log(currentPage);
-  // }, []);
+  const isNew = useRef<boolean>(false);
   const prevScroll = useRef<number | undefined>();
   const handleLoadMoreMessage = useCallback(() => {
     if (!roomId) return;
@@ -69,14 +63,11 @@ function RoomChat() {
       prevScroll.current = containerRef.current?.scrollHeight;
       getMessageList({ roomId, page: currentPage.page + 1 })
         .then((res) => {
-          // currentPage.current = {
-          //   page: res.data.data.currentPage,
-          //   totalPage: res.data.data.totalPages,
-          // };
           setCurrentPage({
             page: res.data.data.currentPage,
             totalPage: res.data.data.totalPages,
           });
+          isNew.current = false;
           setMessageList((prevList) => {
             if (!prevList) return res.data.data.list.reverse();
             return [...res.data.data.list.reverse(), ...prevList];
@@ -99,10 +90,6 @@ function RoomChat() {
   useEffect(() => {
     if (!roomId) return;
     getMessageList({ roomId, page: 1 }).then((response) => {
-      // currentPage.current = {
-      //   page: response.data.data.currentPage,
-      //   totalPage: response.data.data.totalPages,
-      // };
       setCurrentPage({
         page: response.data.data.currentPage,
         totalPage: response.data.data.totalPages,
@@ -118,6 +105,7 @@ function RoomChat() {
     if (roomId && socket.active)
       socket.connect().on(`${roomId}-message`, (e: SocketMessage) => {
         console.log(e);
+        isNew.current = true;
 
         setMessageList((prev) => {
           if (!prev) return [e];
@@ -141,9 +129,13 @@ function RoomChat() {
     },
   });
   useKeepScrollPosition({
-    deps: [messageList],
+    deps: [messageList?.length],
+    isKeep: !isNew.current,
     container: containerRef.current,
   });
+  useLayoutEffect(() => {
+    if (isNew.current) scrollToBottom();
+  }, [messageList?.length]);
 
   return (
     <>
@@ -168,34 +160,11 @@ function RoomChat() {
                 endpoint: subscription.endpoint,
                 key: key,
               });
-              // serviceWorker.getUserSubscription().then((value) => {
-              //   if (!value || !roomId) return;
-              //   const key = value.toJSON().keys;
-              //   if (!key) return;
-              //   getPushNoti({
-              //     roomId: roomId,
-              //     endpoint: value.endpoint,
-              //     key: key,
-              //   });
-              // });
             }}
           >
             noti
           </button>
         </div>
-        {/* {messageList && (
-          <InfiniteScrollWrapper
-            data={messageList}
-            onLoadMore={() => {
-              handleLoadMoreMessage();
-            }}
-            isLoadMore={isLoadMore}
-          >
-            {messageList.map((message) => (
-              <MessageCard message={message} key={message.id} />
-            ))}
-          </InfiniteScrollWrapper>
-        )} */}
         <div
           className="flex-1 flex flex-col gap-2 p-4 overflow-auto"
           ref={containerRef}

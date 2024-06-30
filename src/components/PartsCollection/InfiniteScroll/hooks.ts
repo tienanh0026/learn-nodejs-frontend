@@ -33,13 +33,16 @@ const useLoadMore = ({
 const useKeepScrollPosition = <T extends DependencyList>({
   deps,
   container,
+  isKeep = true,
 }: {
   deps: T;
   container: HTMLElement | null;
+  isKeep: boolean;
 }) => {
   const prevScroll = useRef<number | undefined>();
 
   useLayoutEffect(() => {
+    if (!isKeep) return;
     if (container) {
       const height = container.scrollHeight;
       console.log("After Element height:", height);
@@ -49,14 +52,15 @@ const useKeepScrollPosition = <T extends DependencyList>({
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container, ...deps]); // Include container and other dependencies
+  }, [container, isKeep, ...deps]); // Include container and other dependencies
   useEffect(() => {
     return () => {
+      if (!isKeep) return;
       prevScroll.current = container?.scrollHeight;
       console.log("Before Element height:", prevScroll.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container, ...deps]);
+  }, [container, isKeep, ...deps]);
 };
 
 export { useLoadMore, useKeepScrollPosition };
