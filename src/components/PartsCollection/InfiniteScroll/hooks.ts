@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { DependencyList, useEffect, useLayoutEffect, useRef } from "react";
 
 const useLoadMore = ({
   onLoadMore,
@@ -30,4 +30,33 @@ const useLoadMore = ({
   }, [skip, loadMoreElement, observerOption, onLoadMore]);
 };
 
-export { useLoadMore };
+const useKeepScrollPosition = <T extends DependencyList>({
+  deps,
+  container,
+}: {
+  deps: T;
+  container: HTMLElement | null;
+}) => {
+  const prevScroll = useRef<number | undefined>();
+
+  useLayoutEffect(() => {
+    if (container) {
+      const height = container.scrollHeight;
+      console.log("After Element height:", height);
+      if (prevScroll.current)
+        container.scroll({
+          top: height - prevScroll.current,
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [container, ...deps]); // Include container and other dependencies
+  useEffect(() => {
+    return () => {
+      prevScroll.current = container?.scrollHeight;
+      console.log("Before Element height:", prevScroll.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [container, ...deps]);
+};
+
+export { useLoadMore, useKeepScrollPosition };
