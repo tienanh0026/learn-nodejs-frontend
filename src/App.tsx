@@ -1,11 +1,11 @@
-import RouterConfig from "./modules/routes";
+import RouterConfig from './modules/routes'
 
 function App() {
   return (
     <>
       <RouterConfig />
     </>
-  );
+  )
 }
 
-export default App;
+export default App

@@ -1,5 +1,5 @@
-import { Room } from "@modules/models/room";
-import { Link } from "react-router-dom";
+import { Room } from '@modules/models/room'
+import { Link } from 'react-router-dom'
 
 function RoomCard({ room }: { room: Room }) {
   return (
@@ -10,7 +10,7 @@ function RoomCard({ room }: { room: Room }) {
       {room.image && <img src={room.image} className="inline mr-2 h-full" />}
       <span>{room.name}</span>
     </Link>
-  );
+  )
 }
 
-export default RoomCard;
+export default RoomCard

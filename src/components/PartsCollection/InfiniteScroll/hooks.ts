@@ -1,4 +1,4 @@
-import { DependencyList, useEffect, useLayoutEffect, useRef } from "react";
+import { DependencyList, useEffect, useLayoutEffect, useRef } from 'react'
 
 const useLoadMore = ({
   onLoadMore,
@@ -6,61 +6,61 @@ const useLoadMore = ({
   loadMoreElement,
   observerOption,
 }: {
-  onLoadMore: () => void;
-  skip: boolean;
-  loadMoreElement?: HTMLElement | null;
-  observerOption?: IntersectionObserverInit;
+  onLoadMore: () => void
+  skip: boolean
+  loadMoreElement?: HTMLElement | null
+  observerOption?: IntersectionObserverInit
 }) => {
   useEffect(() => {
-    if (skip || !loadMoreElement) return;
+    if (skip || !loadMoreElement) return
 
     const callback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          onLoadMore();
+          onLoadMore()
         }
-      });
-    };
-    const observer = new IntersectionObserver(callback, observerOption);
-    observer.observe(loadMoreElement);
+      })
+    }
+    const observer = new IntersectionObserver(callback, observerOption)
+    observer.observe(loadMoreElement)
     return () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      if (loadMoreElement) observer.unobserve(loadMoreElement);
-    };
-  }, [skip, loadMoreElement, observerOption, onLoadMore]);
-};
+      if (loadMoreElement) observer.unobserve(loadMoreElement)
+    }
+  }, [skip, loadMoreElement, observerOption, onLoadMore])
+}
 
 const useKeepScrollPosition = <T extends DependencyList>({
   deps,
   container,
   isKeep = true,
 }: {
-  deps: T;
-  container: HTMLElement | null;
-  isKeep: boolean;
+  deps: T
+  container: HTMLElement | null
+  isKeep: boolean
 }) => {
-  const prevScroll = useRef<number | undefined>();
+  const prevScroll = useRef<number | undefined>()
 
   useLayoutEffect(() => {
-    if (!isKeep) return;
+    if (!isKeep) return
     if (container) {
-      const height = container.scrollHeight;
-      console.log("After Element height:", height);
+      const height = container.scrollHeight
+      console.log('After Element height:', height)
       if (prevScroll.current)
         container.scroll({
           top: height - prevScroll.current,
-        });
+        })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container, isKeep, ...deps]); // Include container and other dependencies
+  }, [container, isKeep, ...deps]) // Include container and other dependencies
   useEffect(() => {
     return () => {
-      if (!isKeep) return;
-      prevScroll.current = container?.scrollHeight;
-      console.log("Before Element height:", prevScroll.current);
-    };
+      if (!isKeep) return
+      prevScroll.current = container?.scrollHeight
+      console.log('Before Element height:', prevScroll.current)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container, isKeep, ...deps]);
-};
+  }, [container, isKeep, ...deps])
+}
 
-export { useLoadMore, useKeepScrollPosition };
+export { useLoadMore, useKeepScrollPosition }

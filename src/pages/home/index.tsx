@@ -1,15 +1,15 @@
-import { authState, clearAuthState } from "@modules/redux/AuthSlice/AuthSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { authState, clearAuthState } from '@modules/redux/AuthSlice/AuthSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
 
 function HomePage() {
-  const { user } = useSelector(authState);
-  const dispatch = useDispatch();
+  const { user } = useSelector(authState)
+  const dispatch = useDispatch()
   const handleLogout = () => {
-    dispatch(clearAuthState());
-    Cookies.set("access-token", "");
-    Cookies.set("refresh-token", "");
-  };
+    dispatch(clearAuthState())
+    Cookies.set('access-token', '')
+    Cookies.set('refresh-token', '')
+  }
   return (
     <div className="size-full flex flex-col">
       {user ? (
@@ -38,7 +38,7 @@ function HomePage() {
         <>
           <p>
             You're not logging in,&nbsp;
-            <Link to={"/login"} className="underline">
+            <Link to={'/login'} className="underline">
               click here
             </Link>
             &nbsp;to log in
@@ -46,7 +46,7 @@ function HomePage() {
         </>
       )}
     </div>
-  );
+  )
 }
 
-export default HomePage;
+export default HomePage

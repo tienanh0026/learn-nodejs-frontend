@@ -1,34 +1,34 @@
-import { ChevronLeftIcon } from "@heroicons/react/24/solid";
-import { createRoom } from "@modules/api/room";
-import { useEffect, useId, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { ChevronLeftIcon } from '@heroicons/react/24/solid'
+import { createRoom } from '@modules/api/room'
+import { useEffect, useId, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 
-const CREATE_PARAM_KEY = "create";
+const CREATE_PARAM_KEY = 'create'
 
 function RoomListPage() {
-  const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams()
   const [isCreating, setIsCreating] = useState(
     !!searchParams.get(CREATE_PARAM_KEY)
-  );
-  const nameId = useId();
-  const imageId = useId();
+  )
+  const nameId = useId()
+  const imageId = useId()
 
-  const [name, setName] = useState("");
-  const [image, setImage] = useState("");
+  const [name, setName] = useState('')
+  const [image, setImage] = useState('')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // const [error, setError] = useState(false);
 
   useEffect(() => {
     // if (!image) setError(false);
-  }, [image]);
+  }, [image])
 
   const handleCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log({ image, name });
-    await createRoom({ image, name });
-    setName("");
-    setImage("");
-  };
+    e.preventDefault()
+    console.log({ image, name })
+    await createRoom({ image, name })
+    setName('')
+    setImage('')
+  }
 
   return (
     <div className="p-4 size-full">
@@ -36,7 +36,7 @@ function RoomListPage() {
         <>
           <div className="w-full gap-2 relative p-1">
             <Link
-              to={""}
+              to={''}
               className="hover:underline p-1 absolute left-0"
               onClick={() => setIsCreating(false)}
             >
@@ -54,7 +54,7 @@ function RoomListPage() {
                 id={nameId}
                 value={name}
                 onChange={(e) => {
-                  setName(e.target.value);
+                  setName(e.target.value)
                 }}
               />
             </label>
@@ -65,7 +65,7 @@ function RoomListPage() {
                 id={imageId}
                 value={image}
                 onChange={(e) => {
-                  setImage(e.target.value);
+                  setImage(e.target.value)
                 }}
               />
             </label>
@@ -90,7 +90,7 @@ function RoomListPage() {
           <Link
             to={`?${CREATE_PARAM_KEY}=true`}
             onClick={() => {
-              setIsCreating(true);
+              setIsCreating(true)
             }}
           >
             Create a new room
@@ -98,7 +98,7 @@ function RoomListPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default RoomListPage;
+export default RoomListPage

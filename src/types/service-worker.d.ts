@@ -1,9 +1,9 @@
 interface Window {
-  registration: ServiceWorkerRegistration;
+  registration: ServiceWorkerRegistration
 }
 
 interface ServiceWorkerGlobalScopeEventMap extends ServiceWorkerGlobalScope {
-  notificationclick: NotificationEvent;
+  notificationclick: NotificationEvent
 }
 
-declare let self: ServiceWorkerGlobalScope & typeof globalThis;
+declare let self: ServiceWorkerGlobalScope & typeof globalThis

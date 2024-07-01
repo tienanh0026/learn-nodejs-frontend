@@ -1,9 +1,9 @@
-import { useParams } from "react-router-dom";
-import RoomChat from ".";
+import { useParams } from 'react-router-dom'
+import RoomChat from '.'
 
 function RoomWrapper() {
-  const { roomId } = useParams();
-  return <RoomChat key={roomId} />;
+  const { roomId } = useParams()
+  return <RoomChat key={roomId} />
 }
 
-export default RoomWrapper;
+export default RoomWrapper

@@ -1,11 +1,11 @@
-import MessageCard from "@components/Parts/MessageCard";
-import { getMessageList } from "@modules/api/message-list";
-import { getRoomDetail } from "@modules/api/room";
-import { sendMessage } from "@modules/api/send-message";
-import { socket } from "@modules/libs/socket";
-import { Message } from "@modules/models/message";
-import { RoomDetail } from "@modules/models/room";
-import { SocketMessage } from "@modules/models/socket";
+import MessageCard from '@components/Parts/MessageCard'
+import { getMessageList } from '@modules/api/message-list'
+import { getRoomDetail } from '@modules/api/room'
+import { sendMessage } from '@modules/api/send-message'
+import { socket } from '@modules/libs/socket'
+import { Message } from '@modules/models/message'
+import { RoomDetail } from '@modules/models/room'
+import { SocketMessage } from '@modules/models/socket'
 import {
   useCallback,
   useDeferredValue,
@@ -14,109 +14,113 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-} from "react";
-import { Link, useParams } from "react-router-dom";
-import { ChevronLeftIcon } from "@heroicons/react/24/solid";
-import { getPushNoti } from "@modules/api/push-notification";
-import usePushNotifications from "@modules/libs/service-worker/hooks";
+} from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { ChevronLeftIcon } from '@heroicons/react/24/solid'
+import { getPushNoti } from '@modules/api/push-notification'
+import usePushNotifications from '@modules/libs/service-worker/hooks'
 import {
   useKeepScrollPosition,
   useLoadMore,
-} from "@components/PartsCollection/InfiniteScroll/hooks";
+} from '@components/PartsCollection/InfiniteScroll/hooks'
 
 function RoomChat() {
-  const [content, setContent] = useState("");
-  const [messageList, setMessageList] = useState<Message[]>();
-  const messageListDefered = useDeferredValue(messageList);
-  const [roomDetail, setRoomDetail] = useState<RoomDetail>();
-  const { onClickSusbribeToPushNotification } = usePushNotifications();
-  const { roomId } = useParams();
-  const [isLoadMore, setIsLoadMore] = useState(false);
-  const topPanelId = useId();
-  const topPanelRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [content, setContent] = useState('')
+  const [messageList, setMessageList] = useState<Message[]>()
+  const messageListDefered = useDeferredValue(messageList)
+  const [roomDetail, setRoomDetail] = useState<RoomDetail>()
+  const { onClickSusbribeToPushNotification } = usePushNotifications()
+  const { roomId } = useParams()
+  const [isLoadMore, setIsLoadMore] = useState(false)
+  const topPanelId = useId()
+  const topPanelRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [currentPage, setCurrentPage] = useState<{
-    page: number;
-    totalPage: number | undefined;
+    page: number
+    totalPage: number | undefined
   }>({
     page: 1,
     totalPage: undefined,
-  });
+  })
+
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!roomId || !content) return;
+    e.preventDefault()
+    if (!roomId || !content) return
     try {
       await sendMessage({
         content,
         roomId,
-      });
-      setContent("");
+      })
+      setContent('')
     } catch {
       //
     }
-  };
-  const isNew = useRef<boolean>(false);
-  const prevScroll = useRef<number | undefined>();
+  }
+
+  const isNew = useRef<boolean>(false)
+  const prevScroll = useRef<number | undefined>()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
   const handleLoadMoreMessage = useCallback(() => {
-    if (!roomId) return;
+    if (!roomId) return
     if (currentPage.totalPage && currentPage.page < currentPage.totalPage) {
-      prevScroll.current = containerRef.current?.scrollHeight;
+      prevScroll.current = containerRef.current?.scrollHeight
       getMessageList({ roomId, page: currentPage.page + 1 })
         .then((res) => {
           setCurrentPage({
             page: res.data.data.currentPage,
             totalPage: res.data.data.totalPages,
-          });
-          isNew.current = false;
+          })
+          isNew.current = false
           setMessageList((prevList) => {
-            if (!prevList) return res.data.data.list.reverse();
-            return [...res.data.data.list.reverse(), ...prevList];
-          });
+            if (!prevList) return res.data.data.list.reverse()
+            return [...res.data.data.list.reverse(), ...prevList]
+          })
         })
         .finally(() => {
-          setIsLoadMore(false);
-        });
+          setIsLoadMore(false)
+        })
     }
-  }, [currentPage, roomId]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  }, [currentPage, roomId])
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   useEffect(() => {
-    if (!messageListDefered) scrollToBottom();
-  }, [messageListDefered]);
+    if (!messageListDefered) scrollToBottom()
+  }, [messageListDefered])
 
   useEffect(() => {
-    if (!roomId) return;
+    if (!roomId) return
     getMessageList({ roomId, page: 1 }).then((response) => {
       setCurrentPage({
         page: response.data.data.currentPage,
         totalPage: response.data.data.totalPages,
-      });
-      setMessageList(response.data.data.list.reverse());
-    });
+      })
+      setMessageList(response.data.data.list.reverse())
+    })
     getRoomDetail(roomId).then((response) => {
-      setRoomDetail(response.data.data);
-    });
-  }, [roomId]);
+      setRoomDetail(response.data.data)
+    })
+  }, [roomId])
 
   useEffect(() => {
     if (roomId && socket.active)
       socket.connect().on(`${roomId}-message`, (e: SocketMessage) => {
-        console.log(e);
-        isNew.current = true;
+        console.log(e)
+        isNew.current = true
 
         setMessageList((prev) => {
-          if (!prev) return [e];
-          return [...prev, e];
-        });
-      });
+          if (!prev) return [e]
+          return [...prev, e]
+        })
+      })
 
     return () => {
-      socket.off(`${roomId}-message`);
-    };
-  }, [roomId]);
+      socket.off(`${roomId}-message`)
+    }
+  }, [roomId])
 
   useLoadMore({
     loadMoreElement: topPanelRef.current,
@@ -125,24 +129,26 @@ function RoomChat() {
     observerOption: {
       root: containerRef.current,
       threshold: 1,
-      rootMargin: "0px",
+      rootMargin: '0px',
     },
-  });
+  })
+
   useKeepScrollPosition({
     deps: [messageList?.length],
     isKeep: !isNew.current,
     container: containerRef.current,
-  });
+  })
+
   useLayoutEffect(() => {
-    if (isNew.current) scrollToBottom();
-  }, [messageList?.length]);
+    if (isNew.current) scrollToBottom()
+  }, [messageList?.length])
 
   return (
     <>
       <div className="size-full flex flex-col">
         <div className="w-full p-2 px-4 border-b border-gray-300 flex justify-between gap-2">
           <div className="flex gap-2 items-center">
-            <Link to={"/room-list"} className="hover:underline p-1">
+            <Link to={'/room-list'} className="hover:underline p-1">
               <ChevronLeftIcon className="size-5" />
             </Link>
             <h2 className="font-semibold">{roomDetail?.name}</h2>
@@ -151,15 +157,15 @@ function RoomChat() {
             type="button"
             onClick={async () => {
               const subscription =
-                await onClickSusbribeToPushNotification().then();
-              if (!subscription || !roomId) return;
-              const key = subscription.toJSON().keys;
-              if (!key) return;
+                await onClickSusbribeToPushNotification().then()
+              if (!subscription || !roomId) return
+              const key = subscription.toJSON().keys
+              if (!key) return
               getPushNoti({
                 roomId: roomId,
                 endpoint: subscription.endpoint,
                 key: key,
-              });
+              })
             }}
           >
             noti
@@ -183,7 +189,7 @@ function RoomChat() {
             placeholder="Enter message"
             value={content}
             onChange={(e) => {
-              setContent(e.target.value);
+              setContent(e.target.value)
             }}
             className="flex-1 focus:outline-none focus:ring-1 focus:ring-gray-600 rounded-md p-2 border border-gray-500"
           />
@@ -193,7 +199,7 @@ function RoomChat() {
         </form>
       </div>
     </>
-  );
+  )
 }
 
-export default RoomChat;
+export default RoomChat

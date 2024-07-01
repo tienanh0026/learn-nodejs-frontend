@@ -1,20 +1,20 @@
-import { authState } from "@modules/redux/AuthSlice/AuthSlice";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { Outlet, useNavigate } from "react-router-dom";
+import { authState } from '@modules/redux/AuthSlice/AuthSlice'
+import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 function PublicGuard() {
-  const { isAuthenticated } = useSelector(authState);
-  const navigate = useNavigate();
+  const { isAuthenticated } = useSelector(authState)
+  const navigate = useNavigate()
   useEffect(() => {
-    if (isAuthenticated) navigate("/");
+    if (isAuthenticated) navigate('/')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  }, [isAuthenticated])
   return (
     <>
       <Outlet />
     </>
-  );
+  )
 }
 
-export default PublicGuard;
+export default PublicGuard

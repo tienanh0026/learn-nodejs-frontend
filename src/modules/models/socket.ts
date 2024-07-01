@@ -1,5 +1,5 @@
-import { Message } from "./message";
+import { Message } from './message'
 
-type SocketMessage = Message;
+type SocketMessage = Message
 
-export type { SocketMessage };
+export type { SocketMessage }
