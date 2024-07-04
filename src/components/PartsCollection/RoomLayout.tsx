@@ -30,7 +30,7 @@ function RoomLayout() {
         {roomList &&
           roomList.map((room) => <RoomCard room={room} key={room.id} />)}
       </div>
-      <div className="flex-1 bg-white rounded-md shadow-[rgba(0,0,0,0.05)_0px_6px_24px_0px_rgba(0,0,0,0.08)_0px_0px_0px_1px]">
+      <div className="w-[70%] bg-white rounded-md shadow-[rgba(0,0,0,0.05)_0px_6px_24px_0px_rgba(0,0,0,0.08)_0px_0px_0px_1px]">
         <Outlet />
       </div>
     </div>

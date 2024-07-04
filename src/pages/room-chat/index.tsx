@@ -84,12 +84,19 @@ function RoomChat() {
   }, [currentPage, roomId])
 
   const scrollToBottom = () => {
+    const scrollTop = containerRef.current?.scrollHeight
+    containerRef.current?.scrollTo({
+      top: scrollTop,
+    })
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   useEffect(() => {
-    if (!messageListDefered) scrollToBottom()
-  }, [messageListDefered])
+    if (!messageListDefered) {
+      scrollToBottom()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageList])
 
   useEffect(() => {
     if (!roomId) return
@@ -98,7 +105,7 @@ function RoomChat() {
         page: response.data.data.currentPage,
         totalPage: response.data.data.totalPages,
       })
-      setMessageList(response.data.data.list.reverse())
+      setMessageList(() => response.data.data.list.reverse())
     })
     getRoomDetail(roomId).then((response) => {
       setRoomDetail(response.data.data)
@@ -121,6 +128,7 @@ function RoomChat() {
       socket.off(`${roomId}-message`)
     }
   }, [roomId])
+  console.log('skip ', isLoadMore && !!messageList)
 
   useLoadMore({
     loadMoreElement: topPanelRef.current,
@@ -172,17 +180,15 @@ function RoomChat() {
           </button>
         </div>
         <div
-          className="flex-1 flex flex-col gap-2 p-4 overflow-auto"
+          className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto w-full"
           ref={containerRef}
         >
-          <div className="flex flex-col gap-2">
-            <div id={topPanelId} ref={topPanelRef}></div>
-            {messageList &&
-              messageList.map((message) => (
-                <MessageCard message={message} key={message.id} />
-              ))}
-            <div ref={messagesEndRef} />
-          </div>
+          <div id={topPanelId} ref={topPanelRef}></div>
+          {messageList &&
+            messageList.map((message) => (
+              <MessageCard message={message} key={message.id} />
+            ))}
+          <div ref={messagesEndRef} />
         </div>
         <form className="flex gap-2 p-4" onSubmit={handleSendMessage}>
           <input
@@ -193,9 +199,11 @@ function RoomChat() {
             }}
             className="flex-1 focus:outline-none focus:ring-1 focus:ring-gray-600 rounded-md p-2 border border-gray-500"
           />
+          <button type="button"></button>
           <button className="p-2 bg-blue-600 font-medium text-white rounded-md border border-black">
             Send
           </button>
+          <input type="file" multiple={false} />
         </form>
       </div>
     </>

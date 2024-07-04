@@ -9,6 +9,7 @@ type Message = {
   updatedAt: Date
   deletedAt?: Date
   owner: Pick<User, 'id' | 'name' | 'email'>
+  media: undefined | string
 }
 
 export type { Message }
