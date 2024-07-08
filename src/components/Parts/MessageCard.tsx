@@ -1,40 +1,53 @@
 import { Message } from '@modules/models/message'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
+import clsx from 'clsx'
 import { useSelector } from 'react-redux'
 
 function MessageCard({ message }: { message: Message }) {
   const { user } = useSelector(authState)
   const isImage = message.media?.includes('/image')
-  if (user?.id === message.ownerId)
-    return (
-      <div className="flex justify-end max-w-full">
-        <div className="bg-blue-500 text-white font-medium p-3 rounded-lg text-end max-w-70 text-wrap">
-          {message.content}
-        </div>
-      </div>
-    )
+  const isUserMessage = user?.id === message.ownerId
   return (
-    <div>
-      <p className="text-gray-600 text-sm font-medium">{message.owner.name}</p>
-      <div className="w-full flex justify-start">
-        <div className="bg-gray-200 font-medium p-3 rounded-lg text-start max-w-70 w-fit">
-          <p className="text-wrap">{message.content}</p>
-          {message.media && (
-            <div className="mt-3">
-              {isImage ? (
-                <img
-                  src={import.meta.env.VITE_BASE_URL + message.media}
-                  className="max-w-[600px] max-h-[600px] w-full"
-                />
-              ) : (
-                <video
-                  src={import.meta.env.VITE_BASE_URL + message.media}
-                  className="max-w-[600px] max-h-[600px] w-full"
-                />
-              )}
-            </div>
-          )}
-        </div>
+    <div className={clsx('min-w-0', isUserMessage && 'max-w-full w-full')}>
+      {!isUserMessage && (
+        <p className="text-gray-600 text-sm font-medium">
+          {message.owner.name}
+        </p>
+      )}
+      <div
+        className={clsx(
+          'font-medium p-3 rounded-lg text-start w-fit max-w-[70%]',
+          isUserMessage ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-200'
+        )}
+      >
+        <p className="text-wrap break-words">{message.content}</p>
+        {message.media && (
+          <div className="mt-3">
+            {isImage ? (
+              <img
+                src={import.meta.env.VITE_BASE_URL + message.media}
+                data-loaded="false"
+                onLoad={(event) => {
+                  event.currentTarget.setAttribute('data-loaded', 'true')
+                }}
+                className="max-w-[600px] max-h-[600px] w-full data-[loaded=false]:animate-pulse data-[loaded=false]:bg-gray-200 data-[loaded=false]:h-[600px]"
+              />
+            ) : (
+              <video
+                controls
+                src={import.meta.env.VITE_BASE_URL + message.media}
+                className="max-w-[600px] max-h-[600px] h-full w-full data-[loaded=false]:bg-gray-200 data-[loaded=false]:h-[600px]"
+                data-loaded="false"
+                onLoadedData={(event) => {
+                  event.currentTarget.setAttribute('data-loaded', 'true')
+                }}
+                onError={(event) => {
+                  event.currentTarget.setAttribute('data-errored', 'true')
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

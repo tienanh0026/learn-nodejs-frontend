@@ -6,7 +6,7 @@ import { socket } from '@modules/libs/socket'
 import { Message } from '@modules/models/message'
 import { RoomDetail } from '@modules/models/room'
 import { SocketMessage } from '@modules/models/socket'
-import {
+import React, {
   useCallback,
   useDeferredValue,
   useEffect,
@@ -16,7 +16,11 @@ import {
   useState,
 } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ChevronLeftIcon } from '@heroicons/react/24/solid'
+import {
+  ChevronLeftIcon,
+  PaperClipIcon,
+  FilmIcon,
+} from '@heroicons/react/24/solid'
 import { getPushNoti } from '@modules/api/push-notification'
 import usePushNotifications from '@modules/libs/service-worker/hooks'
 import {
@@ -33,8 +37,6 @@ function RoomChat() {
   const { roomId } = useParams()
   const [isLoadMore, setIsLoadMore] = useState(false)
   const topPanelId = useId()
-  const topPanelRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
   const [currentPage, setCurrentPage] = useState<{
     page: number
     totalPage: number | undefined
@@ -43,27 +45,40 @@ function RoomChat() {
     totalPage: undefined,
   })
 
+  const [file, setFile] = useState<File>()
+  const [filePreview, setFilePreview] = useState<
+    { data: string | undefined; type: 'image' | 'video' } | undefined
+  >()
+
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!roomId || !content) return
     try {
+      const form = new FormData()
+      if (file) form.append('file', file)
+      form.append('content', content)
       await sendMessage({
-        content,
         roomId,
+        formData: form,
       })
       setContent('')
+      setFile(undefined)
     } catch {
       //
     }
   }
 
+  const topPanelRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const isNew = useRef<boolean>(false)
   const prevScroll = useRef<number | undefined>()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputFileRef = useRef<HTMLInputElement>(null)
 
   const handleLoadMoreMessage = useCallback(() => {
     if (!roomId) return
     if (currentPage.totalPage && currentPage.page < currentPage.totalPage) {
+      setIsLoadMore(true)
       prevScroll.current = containerRef.current?.scrollHeight
       getMessageList({ roomId, page: currentPage.page + 1 })
         .then((res) => {
@@ -90,6 +105,33 @@ function RoomChat() {
     })
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target && e.target.files) {
+      setFile(e.target.files[0])
+      e.target.value = ''
+    }
+  }
+
+  useEffect(() => {
+    if (!file) return setFilePreview(undefined)
+    const imageRegex = /^image\/(jpeg|png|gif|webp|bmp|svg\+xml)$/
+    const isImage = imageRegex.test(file.type)
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = function () {
+      setFilePreview({
+        data: reader.result?.toString(),
+        type: isImage ? 'image' : 'video',
+      })
+      return
+    }
+    reader.onerror = function (error) {
+      console.log('Error: ', error)
+      setFilePreview(undefined)
+      return
+    }
+  }, [file])
 
   useEffect(() => {
     if (!messageListDefered) {
@@ -128,7 +170,6 @@ function RoomChat() {
       socket.off(`${roomId}-message`)
     }
   }, [roomId])
-  console.log('skip ', isLoadMore && !!messageList)
 
   useLoadMore({
     loadMoreElement: topPanelRef.current,
@@ -180,31 +221,73 @@ function RoomChat() {
           </button>
         </div>
         <div
-          className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto w-full"
+          className="flex-1 flex flex-col gap-2 px-4 overflow-y-auto w-full"
           ref={containerRef}
         >
           <div id={topPanelId} ref={topPanelRef}></div>
+          {isLoadMore && 'Loading'}
           {messageList &&
             messageList.map((message) => (
               <MessageCard message={message} key={message.id} />
             ))}
           <div ref={messagesEndRef} />
         </div>
-        <form className="flex gap-2 p-4" onSubmit={handleSendMessage}>
-          <input
-            placeholder="Enter message"
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value)
-            }}
-            className="flex-1 focus:outline-none focus:ring-1 focus:ring-gray-600 rounded-md p-2 border border-gray-500"
-          />
-          <button type="button"></button>
-          <button className="p-2 bg-blue-600 font-medium text-white rounded-md border border-black">
-            Send
-          </button>
-          <input type="file" multiple={false} />
-        </form>
+        <div className="flex flex-col p-4">
+          <form className="flex gap-2" onSubmit={handleSendMessage}>
+            <input
+              placeholder="Enter message"
+              value={content}
+              onChange={(e) => {
+                setContent(e.target.value)
+              }}
+              className="flex-1 focus:outline-none focus:ring-1 focus:ring-gray-600 rounded-md p-2 border border-gray-500"
+            />
+            <button
+              type="button"
+              className="bg-gray-200 p-2 border border-black rounded-md hover:opacity-60"
+              onClick={() => {
+                inputFileRef.current?.click()
+              }}
+            >
+              <PaperClipIcon className="size-5" />
+            </button>
+            <button className="p-2 bg-blue-600 font-medium text-white rounded-md border border-black">
+              Send
+            </button>
+            <input
+              type="file"
+              className="hidden"
+              multiple={false}
+              ref={inputFileRef}
+              onChange={handleChangeFile}
+            />
+          </form>
+          {filePreview && (
+            <div className="h-32 mt-2 p-2 w-fit flex items-center justify-center gap-1 flex-col group relative border border-gray-300 rounded-md">
+              <button
+                type="button"
+                onClick={() => {
+                  setFile(undefined)
+                  setFilePreview(undefined)
+                }}
+                className="absolute -top-[2px] -right-[2px] bg-slate-400 text-white font-semibold p-1 size-5  items-center justify-center rounded-full hidden group-hover:flex"
+              >
+                x
+              </button>
+              {filePreview.type === 'image' ? (
+                <img
+                  src={filePreview.data}
+                  className="max-w-40 h-full object-contain"
+                />
+              ) : (
+                <FilmIcon className="h-full flex-1 w-fit" />
+              )}
+              <p className="text-sm pt-1/2 text-gray-600 truncate text-medium shrink-0">
+                {file?.name}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

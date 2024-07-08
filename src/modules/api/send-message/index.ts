@@ -4,11 +4,14 @@ import { SuccessResponse } from '@modules/libs/axios/types'
 type SendMessageResponse = SuccessResponse<null>
 
 export const sendMessage = ({
-  content,
   roomId,
+  formData,
 }: {
-  content: string
   roomId: string
+  formData: FormData
 }) => {
-  return baseAxios.post<SendMessageResponse>(`/${roomId}/message`, { content })
+  return baseAxios.post<SendMessageResponse>(`/${roomId}/message`, formData, {
+    data: formData,
+    transformRequest: [(data) => data],
+  })
 }
