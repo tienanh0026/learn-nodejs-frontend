@@ -17,12 +17,13 @@ function MessageCard({ message }: { message: Message }) {
       <div
         className={clsx(
           'font-medium p-3 rounded-lg text-start w-fit max-w-[70%]',
-          isUserMessage ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-200'
+          isUserMessage ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-200',
+          message.media ? 'w-full' : 'w-fit'
         )}
       >
         <p className="text-wrap break-words">{message.content}</p>
         {message.media && (
-          <div className="mt-3">
+          <div className="mt-3 flex justify-center">
             {isImage ? (
               <img
                 src={import.meta.env.VITE_BASE_URL + message.media}
@@ -30,13 +31,13 @@ function MessageCard({ message }: { message: Message }) {
                 onLoad={(event) => {
                   event.currentTarget.setAttribute('data-loaded', 'true')
                 }}
-                className="max-w-[600px] max-h-[600px] w-full data-[loaded=false]:animate-pulse data-[loaded=false]:bg-gray-200 data-[loaded=false]:h-[600px]"
+                className="max-w-[600px] max-h-[300px] w-full data-[loaded=false]:animate-pulse data-[loaded=false]:bg-gray-200 data-[loaded=false]:h-[300px] data-[loaded=false]:w-full object-contain"
               />
             ) : (
               <video
                 controls
                 src={import.meta.env.VITE_BASE_URL + message.media}
-                className="max-w-[600px] max-h-[600px] h-full w-full data-[loaded=false]:bg-gray-200 data-[loaded=false]:h-[600px]"
+                className="max-w-[600px] max-h-[300px] h-full w-full data-[loaded=false]:bg-gray-200 data-[loaded=false]:h-[300px]"
                 data-loaded="false"
                 onLoadedData={(event) => {
                   event.currentTarget.setAttribute('data-loaded', 'true')

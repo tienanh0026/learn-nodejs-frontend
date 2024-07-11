@@ -21,6 +21,7 @@ import {
   PaperClipIcon,
   FilmIcon,
 } from '@heroicons/react/24/solid'
+import { BellIcon } from '@heroicons/react/24/outline'
 import { getPushNoti } from '@modules/api/push-notification'
 import usePushNotifications from '@modules/libs/service-worker/hooks'
 import {
@@ -52,7 +53,8 @@ function RoomChat() {
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!roomId || !content) return
+    if (!roomId) return
+    if (!content && !file) return
     try {
       const form = new FormData()
       if (file) form.append('file', file)
@@ -217,7 +219,7 @@ function RoomChat() {
               })
             }}
           >
-            noti
+            <BellIcon className="size-5" />
           </button>
         </div>
         <div
