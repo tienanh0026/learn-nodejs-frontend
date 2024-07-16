@@ -28,6 +28,9 @@ import {
   useKeepScrollPosition,
   useLoadMore,
 } from '@components/PartsCollection/InfiniteScroll/hooks'
+import usePreviewMediaFile from '@modules/funcs/hooks'
+import { useSelector } from 'react-redux'
+import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 
 function RoomChat() {
   const [content, setContent] = useState('')
@@ -47,9 +50,8 @@ function RoomChat() {
   })
 
   const [file, setFile] = useState<File>()
-  const [filePreview, setFilePreview] = useState<
-    { data: string | undefined; type: 'image' | 'video' } | undefined
-  >()
+  const { user } = useSelector(authState)
+  const { previewFile, setPreviewFile } = usePreviewMediaFile(file)
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -115,25 +117,7 @@ function RoomChat() {
     }
   }
 
-  useEffect(() => {
-    if (!file) return setFilePreview(undefined)
-    const imageRegex = /^image\/(jpeg|png|gif|webp|bmp|svg\+xml)$/
-    const isImage = imageRegex.test(file.type)
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = function () {
-      setFilePreview({
-        data: reader.result?.toString(),
-        type: isImage ? 'image' : 'video',
-      })
-      return
-    }
-    reader.onerror = function (error) {
-      console.log('Error: ', error)
-      setFilePreview(undefined)
-      return
-    }
-  }, [file])
+  const isOwner = user && roomDetail && user.id === roomDetail.ownerId
 
   useEffect(() => {
     if (!messageListDefered) {
@@ -204,23 +188,26 @@ function RoomChat() {
             </Link>
             <h2 className="font-semibold">{roomDetail?.name}</h2>
           </div>
-          <button
-            type="button"
-            onClick={async () => {
-              const subscription =
-                await onClickSusbribeToPushNotification().then()
-              if (!subscription || !roomId) return
-              const key = subscription.toJSON().keys
-              if (!key) return
-              getPushNoti({
-                roomId: roomId,
-                endpoint: subscription.endpoint,
-                key: key,
-              })
-            }}
-          >
-            <BellIcon className="size-5" />
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                const subscription =
+                  await onClickSusbribeToPushNotification().then()
+                if (!subscription || !roomId) return
+                const key = subscription.toJSON().keys
+                if (!key) return
+                getPushNoti({
+                  roomId: roomId,
+                  endpoint: subscription.endpoint,
+                  key: key,
+                })
+              }}
+            >
+              <BellIcon className="size-5" />
+            </button>
+            {isOwner && <Link to={`/room/${roomId}/setting`}>Setting</Link>}
+          </div>
         </div>
         <div
           className="flex-1 flex flex-col gap-2 px-4 overflow-y-auto w-full"
@@ -264,21 +251,21 @@ function RoomChat() {
               onChange={handleChangeFile}
             />
           </form>
-          {filePreview && (
+          {previewFile && (
             <div className="h-32 mt-2 p-2 w-fit flex items-center justify-center gap-1 flex-col group relative border border-gray-300 rounded-md">
               <button
                 type="button"
                 onClick={() => {
                   setFile(undefined)
-                  setFilePreview(undefined)
+                  setPreviewFile(undefined)
                 }}
                 className="absolute -top-[2px] -right-[2px] bg-slate-400 text-white font-semibold p-1 size-5  items-center justify-center rounded-full hidden group-hover:flex"
               >
                 x
               </button>
-              {filePreview.type === 'image' ? (
+              {previewFile.type === 'image' ? (
                 <img
-                  src={filePreview.data}
+                  src={previewFile.data}
                   className="max-w-40 h-full object-contain"
                 />
               ) : (

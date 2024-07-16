@@ -78,7 +78,7 @@ function Layout() {
         )}
       </header>
       <main
-        className="size-full bg-gray-50 h-svh p-12"
+        className="size-full bg-gray-50 h-svh p-12 max-md:p-0"
         style={{
           maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
         }}

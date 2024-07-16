@@ -8,15 +8,22 @@ export const getRoomDetail = (roomId: string) => {
   return baseAxios.get<RoomDetailResponse>(`/room/${roomId}`)
 }
 
-export const createRoom = ({
-  name,
-  image,
+export const createRoom = ({ formData }: { formData: FormData }) => {
+  return baseAxios.post('/room/create', formData, {
+    data: formData,
+    transformRequest: [(data) => data],
+  })
+}
+
+export const updateRoom = ({
+  formData,
+  roomId,
 }: {
-  name: string
-  image?: string
+  formData: FormData
+  roomId: string
 }) => {
-  return baseAxios.post('/room/create', {
-    name,
-    image,
+  return baseAxios.post(`/room/${roomId}/edit`, formData, {
+    data: formData,
+    transformRequest: [(data) => data],
   })
 }

@@ -7,6 +7,7 @@ import LoginPage from '@pages/login'
 import RegisterPage from '@pages/register'
 import RoomWrapper from '@pages/room-chat/RoomWrapper'
 import RoomListPage from '@pages/room-list'
+import RoomSettingPage from '@pages/room-setting'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 function RouterConfig() {
@@ -25,6 +26,10 @@ function RouterConfig() {
             <Route element={<RoomLayout />}>
               <Route path="/room-list" element={<RoomListPage />} />
               <Route path="/room/:roomId" element={<RoomWrapper />} />
+              <Route
+                path="/room/:roomId/setting"
+                element={<RoomSettingPage />}
+              />
             </Route>
           </Route>
         </Route>

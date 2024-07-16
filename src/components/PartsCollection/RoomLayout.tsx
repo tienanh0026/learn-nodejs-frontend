@@ -1,7 +1,7 @@
 import RoomCard from '@components/Parts/RoomCard'
 import { getRoomList } from '@modules/api/room-list'
 import { socket } from '@modules/libs/socket'
-import { Room } from '@modules/models/room'
+import { Room, RoomDetail } from '@modules/models/room'
 import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 
@@ -13,12 +13,20 @@ function RoomLayout() {
       setRoomList(response.data.data)
     }
     fetchRoomList()
-    socket.connect().on('room-list', (e) => {
+    socket.connect().on('room-list', (e: RoomDetail) => {
+      console.log(e)
       setRoomList((prev) => {
+        const roomList = prev ? [...prev] : []
         if (!prev) return [e]
-        return [...prev, e]
+        const existedIndex = roomList.findIndex((room) => room.id === e.id)
+        if (existedIndex !== -1) {
+          roomList.splice(existedIndex, 1, e)
+          return roomList
+        }
+        return [...roomList, e]
       })
     })
+
     return () => {
       socket.off('room-list')
     }
@@ -26,7 +34,7 @@ function RoomLayout() {
 
   return (
     <div className="flex h-full gap-4">
-      <div className="w-[30%] flex flex-col gap-2">
+      <div className="w-[30%] flex flex-col gap-2 h-full overflow-auto">
         {roomList &&
           roomList.map((room) => <RoomCard room={room} key={room.id} />)}
       </div>
