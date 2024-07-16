@@ -13,7 +13,6 @@ function InfiniteScrollWrapper<T>({
   onLoadMore,
   wrapperClass,
   isLoadMore,
-  data,
 }: InfiniteScrollWrapperProps<T>) {
   const topPanelId = useId()
   const topPanelRef = useRef<HTMLDivElement>(null)

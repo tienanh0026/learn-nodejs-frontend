@@ -1,10 +1,21 @@
+import AccordionList from '@components/Parts/AccordionList'
 import { ChevronLeftIcon, PhotoIcon } from '@heroicons/react/24/solid'
 import { createRoom } from '@modules/api/room'
+import { getUserList } from '@modules/api/user-list'
 import usePreviewMediaFile from '@modules/funcs/hooks'
-import { ChangeEvent, useId, useRef, useState } from 'react'
+import { User } from '@modules/models/user'
+import { authState } from '@modules/redux/AuthSlice/AuthSlice'
+import { ChangeEvent, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { Link, useSearchParams } from 'react-router-dom'
 
 const CREATE_PARAM_KEY = 'create'
+
+type UserInviteList = {
+  user: User
+  role: string
+  isInvited: boolean
+}
 
 function RoomListPage() {
   const [searchParams] = useSearchParams()
@@ -12,11 +23,11 @@ function RoomListPage() {
     !!searchParams.get(CREATE_PARAM_KEY)
   )
   const nameId = useId()
-
+  const [userList, setUserList] = useState<UserInviteList[]>()
   const [name, setName] = useState('')
   const [file, setFile] = useState<File>()
   const fileInputRef = useRef<HTMLInputElement>(null)
-
+  const { user: currentUser } = useSelector(authState)
   const handleCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData()
@@ -36,11 +47,54 @@ function RoomListPage() {
 
   const { previewFile, setPreviewFile } = usePreviewMediaFile(file)
 
+  const filteredUserList = useMemo(() => {
+    if (!userList) return undefined
+    return userList.filter((user) => user.user.id !== currentUser?.id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userList?.length])
+
+  useEffect(() => {
+    getUserList().then((res) => {
+      const formatInviteList = res.data.data.map((item) => ({
+        user: item,
+        role: 'user',
+        isInvited: false,
+      }))
+      setUserList(
+        formatInviteList.filter((user) => user.user.id !== currentUser?.id)
+      )
+    })
+  }, [])
+
+  const handleAddUser = (isChecked: boolean, user: User) => {
+    setUserList((prevList) => {
+      const index = prevList?.findIndex((item) => item.user.id === user.id)
+      if (index && index !== -1)
+        prevList?.splice(index, 1, {
+          ...prevList[index],
+          isInvited: isChecked,
+        })
+      return prevList
+    })
+  }
+  const handleChangeRole = (role: string, user: User) => {
+    setUserList((prevList) => {
+      const index = prevList?.findIndex((item) => item.user.id === user.id)
+      if (index && index !== -1)
+        prevList?.splice(index, 1, {
+          ...prevList[index],
+          role,
+        })
+      return prevList
+    })
+  }
+  console.log(userList)
+
   return (
-    <div className="p-4 size-full">
+    <div className="size-full overflow-auto">
       {isCreating ? (
         <>
-          <div className="w-full gap-2 relative p-1">
+          <div className="w-full gap-2 sticky top-0 bg-white p-4 shadow-[rgba(0,0,0,0.24)_0px_1px_1px]">
             <Link
               to={''}
               className="hover:underline p-1 absolute left-0"
@@ -52,8 +106,8 @@ function RoomListPage() {
               Create a new room
             </div>
           </div>
-          <form className="max-w-72 mx-auto h-full" onSubmit={handleCreateRoom}>
-            <label htmlFor={nameId} className="flex flex-col gap-2 mt-4">
+          <form className="max-w-80 p-4 mx-auto" onSubmit={handleCreateRoom}>
+            <label htmlFor={nameId} className="flex flex-col gap-2">
               <p className="font-bold">Name</p>
               <input
                 className="p-2 rounded-md py-1 border border-black"
@@ -102,11 +156,47 @@ function RoomListPage() {
                 Remove image
               </button>
             </div>
-            <div className="w-full flex items-center mt-6">
-              <button className="p-2 bg-blue-600 rounded-md text-white mx-auto">
-                Create Room
-              </button>
-            </div>
+
+            {filteredUserList && (
+              <AccordionList
+                list={filteredUserList}
+                title="User list"
+                renderItem={(user) => (
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="flex gap-2" key={user.user.id}>
+                      <input
+                        value={user.user.id}
+                        checked={user.isInvited}
+                        type="checkbox"
+                        onChange={(e) => {
+                          console.log(e)
+                          handleAddUser(e.target.checked, user.user)
+                        }}
+                      />
+                      <span className="cursor-pointer">{user.user.name}</span>
+                    </label>
+                    <label htmlFor={user.user.id + 'option'}>
+                      Role
+                      <select
+                        id={user.user.id + 'option'}
+                        defaultValue={'user'}
+                        value={user.role}
+                        className="border border-black rounded-md p-1 ml-2"
+                        onChange={(e) => {
+                          handleChangeRole(e.target.value, user.user)
+                        }}
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                      </select>
+                    </label>
+                  </div>
+                )}
+              />
+            )}
+            <button className="block mt-4 p-2 bg-blue-600 rounded-md text-white mx-auto">
+              Create Room
+            </button>
           </form>
         </>
       ) : (
