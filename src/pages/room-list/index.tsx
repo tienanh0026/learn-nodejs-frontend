@@ -1,11 +1,11 @@
 import AccordionList from '@components/Parts/AccordionList'
 import { ChevronLeftIcon, PhotoIcon } from '@heroicons/react/24/solid'
-import { createRoom } from '@modules/api/room'
+import { addRoomUser, createRoom } from '@modules/api/room'
 import { getUserList } from '@modules/api/user-list'
 import usePreviewMediaFile from '@modules/funcs/hooks'
 import { User } from '@modules/models/user'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
-import { ChangeEvent, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useId, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useSearchParams } from 'react-router-dom'
 
@@ -28,15 +28,42 @@ function RoomListPage() {
   const [file, setFile] = useState<File>()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user: currentUser } = useSelector(authState)
+  const userListRef = useRef<
+    {
+      user: User
+      role: string
+      isInvited: boolean
+    }[]
+  >()
   const handleCreateRoom = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData()
     formData.append('name', name)
     if (file) formData.append('file', file)
-
-    await createRoom({ formData })
-    setName('')
-    setPreviewFile(undefined)
+    try {
+      const room = await createRoom({ formData })
+      const formatRoomUser = userList?.reduce<
+        {
+          id: string
+          role: string
+        }[]
+      >((prevArr, user) => {
+        if (user.isInvited)
+          prevArr.push({
+            id: user.user.id,
+            role: user.role,
+          })
+        return prevArr
+      }, [])
+      if (formatRoomUser)
+        await addRoomUser({
+          roomId: room.data.data.id,
+          userList: formatRoomUser,
+        })
+      setUserList(userListRef.current)
+      setName('')
+      setPreviewFile(undefined)
+    } catch (error) {}
   }
 
   const handleSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
@@ -47,12 +74,6 @@ function RoomListPage() {
 
   const { previewFile, setPreviewFile } = usePreviewMediaFile(file)
 
-  const filteredUserList = useMemo(() => {
-    if (!userList) return undefined
-    return userList.filter((user) => user.user.id !== currentUser?.id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userList?.length])
-
   useEffect(() => {
     getUserList().then((res) => {
       const formatInviteList = res.data.data.map((item) => ({
@@ -60,35 +81,38 @@ function RoomListPage() {
         role: 'user',
         isInvited: false,
       }))
-      setUserList(
-        formatInviteList.filter((user) => user.user.id !== currentUser?.id)
+      const filterList = formatInviteList.filter(
+        (user) => user.user.id !== currentUser?.id
       )
+      userListRef.current = filterList
+      setUserList(filterList)
     })
   }, [])
 
   const handleAddUser = (isChecked: boolean, user: User) => {
     setUserList((prevList) => {
-      const index = prevList?.findIndex((item) => item.user.id === user.id)
-      if (index && index !== -1)
-        prevList?.splice(index, 1, {
-          ...prevList[index],
+      const list = prevList ? [...prevList] : []
+      const index = list?.findIndex((item) => item.user.id === user.id)
+      if (index !== undefined && index !== -1)
+        list?.splice(index, 1, {
+          ...list[index],
           isInvited: isChecked,
         })
-      return prevList
+      return list
     })
   }
   const handleChangeRole = (role: string, user: User) => {
     setUserList((prevList) => {
-      const index = prevList?.findIndex((item) => item.user.id === user.id)
-      if (index && index !== -1)
-        prevList?.splice(index, 1, {
-          ...prevList[index],
+      const list = prevList ? [...prevList] : []
+      const index = list?.findIndex((item) => item.user.id === user.id)
+      if (index !== undefined && index !== -1)
+        list?.splice(index, 1, {
+          ...list[index],
           role,
         })
-      return prevList
+      return list
     })
   }
-  console.log(userList)
 
   return (
     <div className="size-full overflow-auto">
@@ -156,10 +180,9 @@ function RoomListPage() {
                 Remove image
               </button>
             </div>
-
-            {filteredUserList && (
+            {userList && (
               <AccordionList
-                list={filteredUserList}
+                list={userList}
                 title="User list"
                 renderItem={(user) => (
                   <div className="flex items-center justify-between gap-2">
@@ -179,7 +202,6 @@ function RoomListPage() {
                       Role
                       <select
                         id={user.user.id + 'option'}
-                        defaultValue={'user'}
                         value={user.role}
                         className="border border-black rounded-md p-1 ml-2"
                         onChange={(e) => {

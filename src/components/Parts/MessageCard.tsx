@@ -1,6 +1,7 @@
 import { Message } from '@modules/models/message'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 import clsx from 'clsx'
+import { memo } from 'react'
 import { useSelector } from 'react-redux'
 
 function MessageCard({ message }: { message: Message }) {
@@ -54,4 +55,4 @@ function MessageCard({ message }: { message: Message }) {
   )
 }
 
-export default MessageCard
+export default memo(MessageCard)

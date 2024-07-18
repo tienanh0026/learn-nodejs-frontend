@@ -1,6 +1,7 @@
 import { getRefreshToken } from '@modules/api/refreshToken'
 import { COOKIES_EXPIRED_AT } from '@modules/constants/layout'
 import { clearAuthState } from '@modules/redux/AuthSlice/AuthSlice'
+import { addNotification } from '@modules/redux/NotificationSlice/NotificationSlice'
 import { store } from '@modules/redux/store'
 import axios from 'axios'
 import Axios, {
@@ -10,6 +11,7 @@ import Axios, {
   InternalAxiosRequestConfig,
 } from 'axios'
 import Cookies from 'cookies-js'
+import { uid } from 'uid'
 console.log(import.meta.env)
 
 const baseAxios: AxiosInstance = Axios.create({
@@ -26,10 +28,26 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
 }
 
 function authResoponseInterceptor(response: AxiosResponse) {
+  const id = uid()
+  store.dispatch(
+    addNotification({
+      id,
+      title: 'Successfully',
+      type: 'success',
+    })
+  )
   return response
 }
 
 const onResponseError = async (error: AxiosError) => {
+  const id = uid()
+  store.dispatch(
+    addNotification({
+      id,
+      title: 'Failed',
+      type: 'error',
+    })
+  )
   const refreshToken = Cookies.get('refresh-token')
   if (error.response?.status !== 401 || !refreshToken) {
     return Promise.reject(error)
