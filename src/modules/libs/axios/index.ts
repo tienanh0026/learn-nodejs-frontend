@@ -39,12 +39,15 @@ function authResoponseInterceptor(response: AxiosResponse) {
   return response
 }
 
-const onResponseError = async (error: AxiosError) => {
+const onResponseError = async (
+  error: AxiosError<{ message: string | undefined; data: unknown }>
+) => {
   const id = uid()
+  const message = error.response?.data.message
   store.dispatch(
     addNotification({
       id,
-      title: 'Failed',
+      title: message ? message : 'Failed',
       type: 'error',
     })
   )
