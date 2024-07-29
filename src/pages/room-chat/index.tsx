@@ -7,6 +7,7 @@ import { Message } from '@modules/models/message'
 import { RoomDetail } from '@modules/models/room'
 import { SocketMessage } from '@modules/models/socket'
 import React, {
+  RefObject,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -31,6 +32,77 @@ import {
 import usePreviewMediaFile from '@modules/funcs/hooks'
 import { useSelector } from 'react-redux'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
+import List from 'react-virtualized/dist/commonjs/List'
+import {
+  AutoSizer,
+  CellMeasurer,
+  CellMeasurerCache,
+  ListRowProps,
+} from 'react-virtualized'
+import 'react-virtualized/styles.css'
+const cache = new CellMeasurerCache({
+  // fixedWidth: true,
+  minHeight: 20,
+})
+
+type MessageRenderer = ListRowProps & {
+  item: Message | undefined
+  messagesEndRef: RefObject<HTMLDivElement>
+  topPanelRef: RefObject<HTMLDivElement>
+  topPanelId: string
+}
+
+function messageRowRenderer({
+  item,
+  messagesEndRef,
+  topPanelRef,
+  topPanelId,
+  ...listProps
+}: MessageRenderer) {
+  return (
+    <CellMeasurer
+      cache={cache}
+      columnIndex={0}
+      key={listProps.key}
+      parent={listProps.parent}
+      rowIndex={listProps.index}
+      // style={listProps.style}
+    >
+      {({ registerChild }) => (
+        <>
+          {item && (
+            <div
+              style={listProps.style}
+              ref={
+                listProps.index === 0
+                  ? topPanelRef
+                  : listProps.index === listProps.parent.props.rowCount - 1
+                  ? messagesEndRef
+                  : undefined
+              }
+            >
+              {listProps.index === 0
+                ? 'topPanelRef'
+                : listProps.index === listProps.parent.props.rowCount - 1
+                ? 'messagesEndRef'
+                : undefined}
+              {/* {listProps.index === 0 && (
+              <div id={topPanelId} ref={topPanelRef}></div>
+            )} */}
+              <MessageCard
+                message={item}
+                // styles={listProps.style}
+              />
+              {/* {listProps.index === listProps.parent.props.rowCount - 1 && (
+              <div ref={messagesEndRef} />
+            )} */}
+            </div>
+          )}
+        </>
+      )}
+    </CellMeasurer>
+  )
+}
 
 function RoomChat() {
   const [content, setContent] = useState('')
@@ -73,7 +145,7 @@ function RoomChat() {
   }
 
   const topPanelRef = useRef<HTMLDivElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<List>(null)
   const isNew = useRef<boolean>(false)
   const prevScroll = useRef<number | undefined>()
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -82,8 +154,11 @@ function RoomChat() {
   const handleLoadMoreMessage = useCallback(() => {
     if (!roomId) return
     if (currentPage.totalPage && currentPage.page < currentPage.totalPage) {
+      console.log('asdm;adkasdasdasd')
+
       setIsLoadMore(true)
-      prevScroll.current = containerRef.current?.scrollHeight
+      // prevScroll.current = containerRef.current?.scrollHeight
+      // containerRef.current?.scrollToRow(9)
       getMessageList({ roomId, page: currentPage.page + 1 })
         .then((res) => {
           setCurrentPage({
@@ -103,10 +178,13 @@ function RoomChat() {
   }, [currentPage, roomId])
 
   const scrollToBottom = () => {
-    const scrollTop = containerRef.current?.scrollHeight
-    containerRef.current?.scrollTo({
-      top: scrollTop,
-    })
+    // const scrollTop = containerRef.current?.scrollHeight
+    // containerRef.current?.scrollTo({
+    //   top: scrollTop,
+    // })
+    containerRef.current?.scrollToRow(
+      messageList?.length ? messageList?.length : 0
+    )
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -162,7 +240,7 @@ function RoomChat() {
     onLoadMore: handleLoadMoreMessage,
     skip: isLoadMore && !!messageList,
     observerOption: {
-      root: containerRef.current,
+      root: document.getElementById('test'),
       threshold: 1,
       rootMargin: '0px',
     },
@@ -171,13 +249,13 @@ function RoomChat() {
   useKeepScrollPosition({
     deps: [messageList?.length],
     isKeep: !isNew.current,
-    container: containerRef.current,
+    container: document.getElementById('test'),
   })
 
   useLayoutEffect(() => {
     if (isNew.current) scrollToBottom()
   }, [messageList?.length])
-
+  const [render, setRender] = useState(false)
   return (
     <>
       <div className="size-full flex flex-col">
@@ -209,7 +287,7 @@ function RoomChat() {
             {isOwner && <Link to={`/room/${roomId}/setting`}>Setting</Link>}
           </div>
         </div>
-        <div
+        {/* <div
           className="flex-1 flex flex-col gap-2 px-4 overflow-y-auto w-full"
           ref={containerRef}
         >
@@ -220,7 +298,40 @@ function RoomChat() {
               <MessageCard message={message} key={message.id} />
             ))}
           <div ref={messagesEndRef} />
+        </div> */}
+        <div className="flex-1 px-4 overflow-y-auto w-full">
+          <AutoSizer>
+            {({ width, height }) => (
+              <>
+                <List
+                  id="test"
+                  ref={containerRef}
+                  rowCount={messageList?.length || 0}
+                  width={width}
+                  height={height}
+                  // isScrolling={() => {
+                  //   setRender(!render)
+                  // }}
+                  deferredMeasurementCache={cache}
+                  rowHeight={cache.rowHeight}
+                  onRowsRendered={() => {
+                    setRender(!render)
+                  }}
+                  rowRenderer={(props) =>
+                    messageRowRenderer({
+                      ...props,
+                      item: messageList ? messageList[props.index] : undefined,
+                      messagesEndRef: messagesEndRef,
+                      topPanelId: topPanelId,
+                      topPanelRef: topPanelRef,
+                    })
+                  }
+                />
+              </>
+            )}
+          </AutoSizer>
         </div>
+
         <div className="flex flex-col p-4">
           <form className="flex gap-2" onSubmit={handleSendMessage}>
             <input

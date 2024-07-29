@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Message } from '@modules/models/message'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 import clsx from 'clsx'
