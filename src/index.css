@@ -35,3 +35,74 @@
     }
   }
   
+
+.test-animation::after{
+    content: '';
+    width: 1px;
+    position: absolute;
+    bottom: 0px;
+    height: 80px;
+    background-color: black;
+    top: 1.5rem;
+    left: 50%;
+    animation-name: fly-down;
+    animation-duration: 2000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}  
+
+@keyframes fly-down {
+    0%{
+        transform: scaleY(0);
+        transform-origin: top;
+    }
+    50%{
+        transform: scaleY(0);
+    }
+    100%{
+        transform: scaleY(1);
+    }
+}
+
+.dark ::-webkit-scrollbar-track
+{
+	/* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5; */
+    background-color: rgb(169, 169, 169);
+
+}
+
+.dark ::-webkit-scrollbar
+{
+	/* width: 10px;
+	background-color: #F5F5F5; */
+    background-color: red;
+}
+
+.dark ::-webkit-scrollbar-thumb
+{
+    background-color: rgb(103, 103, 103);
+    border: 3px solid rgb(169, 169, 169);
+    border-radius: 50px;
+	/* background-color: #000000;
+	border: 2px solid #555555; */
+}
+
+
+@keyframes modal-slide-in {
+    0% {
+        transform: translateX(-50%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+  }
+
+  @keyframes modal-slide-out {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+  }

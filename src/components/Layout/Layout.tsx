@@ -14,10 +14,12 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import Cookies from 'cookies-js'
+import { useThemeDetector } from '@modules/funcs/hooks'
 
 function Layout() {
   const [isLoading, setIsLoading] = useState(true)
   const { user } = useSelector(authState)
+  const { isDarkTheme, setIsDarkTheme } = useThemeDetector()
   const dispatch = useDispatch()
   useEffect(() => {
     getCurrentUser()
@@ -49,10 +51,11 @@ function Layout() {
     Cookies.set('refresh-token', '')
     navigate('/login')
   }
+
   return (
     <>
       <header
-        className="w-full bg-white border-b border-gray-200 flex justify-between"
+        className="w-full bg-white border-b border-gray-200 dark:border-gray-700 flex justify-between dark:bg-gray-500 dark:text-white"
         style={{
           height: HEADER_HEIGHT,
         }}
@@ -67,23 +70,33 @@ function Layout() {
         >
           <ChevronLeftIcon className="size-6" />
         </Link>
-        {user && (
-          <Link
-            className="p-1 h-full flex items-center px-3"
-            to={'/login'}
-            onClick={handleLogout}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setIsDarkTheme(!isDarkTheme)
+            }}
           >
-            <ArrowRightEndOnRectangleIcon className="size-6" />
-          </Link>
-        )}
+            {isDarkTheme ? 'Dark' : 'Light'}
+          </button>
+          {user && (
+            <Link
+              className="p-1 h-full flex items-center px-3"
+              to={'/login'}
+              onClick={handleLogout}
+            >
+              <ArrowRightEndOnRectangleIcon className="size-6" />
+            </Link>
+          )}
+        </div>
       </header>
       <main
-        className="size-full bg-gray-50 h-svh p-12 max-md:p-0"
+        className="size-full bg-gray-50 h-svh p-12 max-md:p-0 dark:bg-gray-600 transition-all dark:text-white"
         style={{
           maxHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
         }}
       >
-        <div className="border-gray- bg-gray-200 rounded-lg h-full shadow-[rgba(0,0,0,0.24)_0px_3px_8px] p-6">
+        <div className="border-gray- bg-gray-200 dark:bg-gray-700 rounded-lg h-full shadow-[rgba(0,0,0,0.24)_0px_3px_8px] p-6 max-md:p-4">
           {isLoading ? (
             <div className="size-full flex items-center justify-center font-bold">
               Loading...

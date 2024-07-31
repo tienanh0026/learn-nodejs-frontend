@@ -1,7 +1,7 @@
 import { ChevronLeftIcon } from '@heroicons/react/20/solid'
 import { PhotoIcon } from '@heroicons/react/24/solid'
 import { getRoomDetail, updateRoom } from '@modules/api/room'
-import usePreviewMediaFile from '@modules/funcs/hooks'
+import { usePreviewMediaFile } from '@modules/funcs/hooks'
 import { RoomDetail } from '@modules/models/room'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 import { ChangeEvent, useEffect, useId, useRef, useState } from 'react'
@@ -74,7 +74,7 @@ function RoomSettingPage() {
             Room name
           </label>
           <input
-            className="p-2 rounded-md py-1 border border-black ml-3"
+            className="p-2 rounded-md py-1 border border-black ml-3 dark:bg-slate-400"
             id={roomNameInput}
             name="email"
             value={roomName}

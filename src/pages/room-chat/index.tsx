@@ -28,7 +28,7 @@ import {
   useKeepScrollPosition,
   useLoadMore,
 } from '@components/PartsCollection/InfiniteScroll/hooks'
-import usePreviewMediaFile from '@modules/funcs/hooks'
+import { usePreviewMediaFile } from '@modules/funcs/hooks'
 import { useSelector } from 'react-redux'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 

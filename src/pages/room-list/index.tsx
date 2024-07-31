@@ -2,7 +2,7 @@ import AccordionList from '@components/Parts/AccordionList'
 import { ChevronLeftIcon, PhotoIcon } from '@heroicons/react/24/solid'
 import { addRoomUser, createRoom } from '@modules/api/room'
 import { getUserList } from '@modules/api/user-list'
-import usePreviewMediaFile from '@modules/funcs/hooks'
+import { usePreviewMediaFile } from '@modules/funcs/hooks'
 import { User } from '@modules/models/user'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 import { ChangeEvent, useEffect, useId, useRef, useState } from 'react'
@@ -63,7 +63,9 @@ function RoomListPage() {
       setUserList(userListRef.current)
       setName('')
       setPreviewFile(undefined)
-    } catch (error) {}
+    } catch (error) {
+      //
+    }
   }
 
   const handleSelectFile = (e: ChangeEvent<HTMLInputElement>) => {
@@ -87,6 +89,7 @@ function RoomListPage() {
       userListRef.current = filterList
       setUserList(filterList)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleAddUser = (isChecked: boolean, user: User) => {
@@ -118,7 +121,7 @@ function RoomListPage() {
     <div className="size-full overflow-auto">
       {isCreating ? (
         <>
-          <div className="w-full gap-2 sticky top-0 bg-white p-4 shadow-[rgba(0,0,0,0.24)_0px_1px_1px]">
+          <div className="w-full gap-2 sticky top-0 bg-white p-4 shadow-[rgba(0,0,0,0.24)_0px_1px_1px] dark:bg-gray-500">
             <Link
               to={''}
               className="hover:underline p-1 absolute left-0"
@@ -142,7 +145,7 @@ function RoomListPage() {
                 }}
               />
             </label>
-            <div className="max-w-[400px] max-h-[400px] mx-auto border border-black rounded-md mt-5 overflow-hidden">
+            <div className="max-w-[400px] max-h-[400px] mx-auto border border-black rounded-md mt-5 overflow-hidden dark:bg-slate-900">
               {previewFile?.data ? (
                 <img
                   src={previewFile.data}
@@ -203,7 +206,7 @@ function RoomListPage() {
                       <select
                         id={user.user.id + 'option'}
                         value={user.role}
-                        className="border border-black rounded-md p-1 ml-2"
+                        className="border border-black rounded-md p-1 ml-2 dark:bg-slate-600"
                         onChange={(e) => {
                           handleChangeRole(e.target.value, user.user)
                         }}
