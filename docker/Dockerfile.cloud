@@ -1,0 +1,7 @@
+FROM node:20
+WORKDIR /frontend
+COPY . .
+ENV PORT=8080
+CMD ["sh","-c","yarn && yarn build && yarn start --host --port $PORT"]
+
+EXPOSE ${PORT}
