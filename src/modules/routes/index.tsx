@@ -5,10 +5,11 @@ import RoomLayout from '@components/PartsCollection/RoomLayout'
 import HomePage from '@pages/home'
 import LoginPage from '@pages/login'
 import RegisterPage from '@pages/register'
-import RoomWrapper from '@pages/room-chat/RoomWrapper'
+import RoomWrapper from '@pages/room/RoomWrapper'
 import RoomListPage from '@pages/room-list'
-import RoomSettingPage from '@pages/room-setting'
+import RoomSettingPage from '@pages/room/setting'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import RoomStreamPage from '@pages/room/stream'
 
 function RouterConfig() {
   return (
@@ -29,6 +30,10 @@ function RouterConfig() {
               <Route
                 path="/room/:roomId/setting"
                 element={<RoomSettingPage />}
+              />
+              <Route
+                path="/room/:roomId/livestream"
+                element={<RoomStreamPage />}
               />
             </Route>
           </Route>

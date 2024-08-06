@@ -207,6 +207,9 @@ function RoomChat() {
               <BellIcon className="size-5" />
             </button>
             {isOwner && <Link to={`/room/${roomId}/setting`}>Setting</Link>}
+            {isOwner && (
+              <Link to={`/room/${roomId}/livestream`}>Livestream</Link>
+            )}
           </div>
         </div>
         <div

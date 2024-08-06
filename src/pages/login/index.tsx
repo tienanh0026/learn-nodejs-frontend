@@ -52,7 +52,7 @@ export default function LoginPage() {
         <label htmlFor={mailId} className="flex flex-col gap-2 mt-4">
           <p className="font-bold">Email</p>
           <input
-            className="p-2 rounded-md py-1"
+            className="p-2 rounded-md py-1 dark:text-black"
             id={mailId}
             name="email"
             value={mail}
@@ -64,7 +64,7 @@ export default function LoginPage() {
         <label htmlFor={passwordId}>
           <p className="font-bold">Password</p>
           <input
-            className="p-2 rounded-md py-1"
+            className="p-2 rounded-md py-1 dark:text-black"
             id={passwordId}
             type="password"
             value={password}
