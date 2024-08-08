@@ -7,7 +7,7 @@ function PublicGuard() {
   const { isAuthenticated } = useSelector(authState)
   const navigate = useNavigate()
   useEffect(() => {
-    if (isAuthenticated) navigate('/')
+    if (isAuthenticated) navigate('/room-list')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated])
   return (

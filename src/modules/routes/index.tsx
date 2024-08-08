@@ -1,5 +1,4 @@
 import AuthGuard from '@components/Layout/AuthGuard'
-import Layout from '@components/Layout/Layout'
 import PublicGuard from '@components/Layout/PublicGuard'
 import RoomLayout from '@components/PartsCollection/RoomLayout'
 import HomePage from '@pages/home'
@@ -10,18 +9,16 @@ import RoomListPage from '@pages/room-list'
 import RoomSettingPage from '@pages/room/setting'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import RoomStreamPage from '@pages/room/stream'
+import Layout from '@components/Layout/Layout'
 
 function RouterConfig() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
-          <Route>
-            <Route path="/" element={<HomePage />} />
-            <Route element={<PublicGuard />}>
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/login" element={<LoginPage />} />
-            </Route>
+        <Route element={<Layout isChat={true} />}>
+          <Route element={<PublicGuard />}>
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
           </Route>
           <Route element={<AuthGuard />}>
             <Route element={<RoomLayout />}>
@@ -37,6 +34,9 @@ function RouterConfig() {
               />
             </Route>
           </Route>
+        </Route>
+        <Route element={<Layout isChat={false} />}>
+          <Route path="/" element={<HomePage />} />
         </Route>
       </Routes>
     </BrowserRouter>

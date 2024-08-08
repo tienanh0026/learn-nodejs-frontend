@@ -28,8 +28,13 @@ const usePreviewMediaFile = (file: File | undefined) => {
 }
 
 const useThemeDetector = () => {
+  const theme = window.localStorage.getItem('theme')
   const getCurrentTheme = () =>
-    window.matchMedia('(prefers-color-scheme: dark)').matches
+    theme
+      ? theme === 'dark'
+        ? true
+        : false
+      : window.matchMedia('(prefers-color-scheme: dark)').matches
   const [isDarkTheme, setIsDarkTheme] = useState(getCurrentTheme())
   const mqListener = (e: MediaQueryListEvent) => {
     setIsDarkTheme(e.matches)
@@ -45,6 +50,7 @@ const useThemeDetector = () => {
     if (isDarkTheme) {
       document.body.classList.add('dark')
     } else document.body.classList.remove('dark')
+    window.localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light')
   }, [isDarkTheme])
   return { isDarkTheme, setIsDarkTheme }
 }

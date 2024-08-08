@@ -26,6 +26,7 @@ function Notification({ notification }: { notification: NotiItem }) {
         }, 350)
       }
     }, 2000)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return (
     <div

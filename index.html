@@ -9,5 +9,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      const theme = window.localStorage.getItem('theme')
+      const isDarkTheme = theme ? 
+        (theme === 'dark' ? true : false) : 
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+      if (isDarkTheme) {
+        document.body.classList.add('dark')
+      } else document.body.classList.remove('dark')
+    </script>
   </body>
 </html>

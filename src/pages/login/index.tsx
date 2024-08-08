@@ -2,7 +2,7 @@ import { login } from '@modules/api/login'
 import { ErrorResponse } from '@modules/libs/axios/types'
 import axios from 'axios'
 import { useId, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Cookies from 'cookies-js'
 import { getCurrentUser } from '@modules/api/currentUser'
 import { useDispatch } from 'react-redux'
@@ -14,7 +14,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const mailId = useId()
   const passwordId = useId()
-  const navigate = useNavigate()
   const [error, setError] = useState<string>()
   const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
@@ -33,7 +32,6 @@ export default function LoginPage() {
       dispatch(
         setAuthState({ isAuthenticated: true, user: userResponse.data.data })
       )
-      navigate('/')
     } catch (error) {
       if (axios.isAxiosError<ErrorResponse>(error)) {
         setError(error.response?.data.message)

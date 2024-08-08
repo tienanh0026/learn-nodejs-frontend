@@ -33,7 +33,7 @@ function AccordionList<T>({
     else iconRef.current.classList.add('rotate-90')
   }, [toogle])
   return (
-    <>
+    <div>
       <button
         type="button"
         onClick={handleToogleList}
@@ -46,17 +46,17 @@ function AccordionList<T>({
             className="block h-[3px] w-4 bg-black absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform rotate-90"
           />
         </span>
-        <span className="ml-1">{title}</span>
+        <span className="ml-2">{title}</span>
       </button>
       <div
         ref={listRef}
-        className="transition-all duration-300 overflow-hidden flex gap-2 flex-col"
+        className="transition-all duration-300 overflow-hidden flex gap-2 flex-col mt-2"
       >
         {list.map((item, index) => (
           <Fragment key={index}>{renderItem(item)}</Fragment>
         ))}
       </div>
-    </>
+    </div>
   )
 }
 
