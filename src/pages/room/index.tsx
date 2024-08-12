@@ -5,7 +5,7 @@ import { sendMessage } from '@modules/api/send-message'
 import { socket } from '@modules/libs/socket'
 import { Message } from '@modules/models/message'
 import { RoomDetail } from '@modules/models/room'
-import { SocketMessage } from '@modules/models/socket'
+import { SocketMessage, TypingStatusMessage } from '@modules/models/socket'
 import React, {
   useCallback,
   useDeferredValue,
@@ -48,8 +48,11 @@ function RoomChat() {
     page: 1,
     totalPage: undefined,
   })
-
   const [file, setFile] = useState<File>()
+  const [typingUser, setTypingUser] = useState<TypingStatusMessage['user'][]>(
+    []
+  )
+
   const { user } = useSelector(authState)
   const { previewFile, setPreviewFile } = usePreviewMediaFile(file)
 
@@ -78,7 +81,6 @@ function RoomChat() {
   const prevScroll = useRef<number | undefined>()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputFileRef = useRef<HTMLInputElement>(null)
-
   const handleLoadMoreMessage = useCallback(() => {
     if (!roomId) return
     if (currentPage.totalPage && currentPage.page < currentPage.totalPage) {
@@ -141,21 +143,46 @@ function RoomChat() {
   }, [roomId])
 
   useEffect(() => {
-    if (roomId && socket.active)
-      socket.connect().on(`${roomId}-message`, (e: SocketMessage) => {
-        console.log(e)
-        isNew.current = true
+    if (!roomId) return
 
-        setMessageList((prev) => {
-          if (!prev) return [e]
-          return [...prev, e]
-        })
-      })
-
-    return () => {
-      socket.off(`${roomId}-message`)
+    // Establish connection if it's not already connected
+    if (!socket.connected) {
+      socket.connect()
     }
-  }, [roomId])
+    const handleNewMessage = (e: SocketMessage) => {
+      console.log(e)
+      isNew.current = true
+      setMessageList((prev) => {
+        if (!prev) return [e]
+        return [...prev, e]
+      })
+    }
+    const handleTypingStatus = (data: TypingStatusMessage) => {
+      if (data.user.id === user?.id) return
+      const existedUser = typingUser?.find(
+        (typingUser) => typingUser.id === user?.id
+      )
+      if (data.isTyping && !existedUser)
+        setTypingUser([...typingUser, data.user])
+      if (!data.isTyping) {
+        const newTypingUser = [...typingUser].filter(
+          (userItem) => userItem.id !== data.user.id
+        )
+        setTypingUser(newTypingUser)
+      }
+    }
+
+    // Attach event listeners
+    socket.on(`${roomId}-message`, handleNewMessage)
+    socket.on(`${roomId}-typing`, handleTypingStatus)
+    // Clean up event listeners when roomId or component changes
+    return () => {
+      socket.off(`${roomId}-message`, handleNewMessage)
+      socket.off(`${roomId}-typing`, handleTypingStatus)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, socket])
+  console.log(typingUser)
 
   useLoadMore({
     loadMoreElement: topPanelRef.current,
@@ -177,6 +204,30 @@ function RoomChat() {
   useLayoutEffect(() => {
     if (isNew.current) scrollToBottom()
   }, [messageList?.length])
+
+  const isTyping = useRef<boolean>(false)
+  useEffect(() => {
+    if (!user || !roomId) return
+    if (!isTyping.current && content) {
+      console.log('start typing')
+      isTyping.current = true
+      socket.emit('on-typing-message', {
+        user,
+        roomId: roomId,
+      })
+    }
+    const typingTimeout = setTimeout(() => {
+      console.log('stop typing')
+      isTyping.current = false
+      socket.emit('on-stop-typing-message', {
+        user,
+        roomId: roomId,
+      })
+    }, 3000)
+    return () => clearTimeout(typingTimeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [content])
+  console.log(typingUser)
 
   return (
     <>
@@ -223,6 +274,22 @@ function RoomChat() {
               <MessageCard message={message} key={message.id} />
             ))}
           <div ref={messagesEndRef} />
+          {typingUser.length !== 0 && (
+            <div className="flex items-center">
+              {typingUser.length === 1 ? (
+                <p key={typingUser[0].id + '-typing'}>
+                  {typingUser[0].name} is Typing
+                </p>
+              ) : (
+                <p> Several people are typing</p>
+              )}
+              <span className="bg-gray-300 rounded-2xl flex items-center w-fit px-2 py-3 gap-2 h-full ml-2">
+                <span className="size-[5px] rounded-full bg-black overflow-hidden animate-[fly-around_800ms_linear_infinite]"></span>
+                <span className="size-[5px] rounded-full bg-black overflow-hidden animate-[fly-around_800ms_linear_infinite_200ms]"></span>
+                <span className="size-[5px] rounded-full bg-black overflow-hidden animate-[fly-around_800ms_linear_infinite_400ms]"></span>
+              </span>
+            </div>
+          )}
         </div>
         <div className="flex flex-col p-4">
           <form className="flex gap-2" onSubmit={handleSendMessage}>

@@ -16,7 +16,7 @@ function RoomLayout() {
       setRoomList(response.data.data)
     }
     fetchRoomList()
-    socket.connect().on('room-list', (e: RoomDetail) => {
+    socket.on('room-list', (e: RoomDetail) => {
       console.log(e)
       setRoomList((prev) => {
         const roomList = prev ? [...prev] : []

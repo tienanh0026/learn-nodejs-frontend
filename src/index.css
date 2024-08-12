@@ -106,3 +106,21 @@
         transform: translateX(-50%);
     }
   }
+
+  @keyframes fly-around {
+    0%{
+        transform: translateY(0%);
+    }
+    25%{
+        transform: translateY(70%);
+    }
+    50%{
+        transform: translateY(0%);
+    }
+    75%{
+        transform: translateY(-70%);
+    }
+    100%{
+        transform: translateY(0%);
+    }
+}

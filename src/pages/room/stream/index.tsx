@@ -1,20 +1,5 @@
 import { useRef, useState } from 'react'
 
-const link = new URL(import.meta.env.VITE_BASE_URL)
-const ws = new WebSocket(`ws://${link.host}/stream`)
-
-ws.onopen = () => {
-  console.log('WebSocket connection opened')
-}
-
-ws.onclose = () => {
-  console.log('WebSocket connection closed')
-}
-
-ws.onerror = (error) => {
-  console.error('WebSocket error:', error)
-}
-
 function RoomStreamPage() {
   const [peerConnection, setPeerConnection] = useState<RTCPeerConnection>()
   const [stream, setStream] = useState<MediaStream>()
@@ -59,7 +44,6 @@ function RoomStreamPage() {
     mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         console.log(event)
-        ws.send(event.data)
       }
     }
     mediaRecorder.start(1000)

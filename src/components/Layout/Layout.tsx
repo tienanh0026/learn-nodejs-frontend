@@ -28,6 +28,8 @@ function Layout({ isChat }: { isChat: boolean }) {
   }, [])
   useEffect(() => {
     if (!isLoading && user && isChat) {
+      console.log('123')
+
       socket.connect()
     }
     return () => {
