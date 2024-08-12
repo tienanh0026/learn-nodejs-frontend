@@ -14,4 +14,15 @@ type RoomDetail = Room & {
   owner: Pick<User, 'id' | 'email' | 'name'>
 }
 
-export type { Room, RoomDetail }
+type RoomUser = {
+  id: string
+  userId: string
+  role: 'admin' | 'user'
+  roomId: string
+  createdAt: string
+  updatedAt: string
+  readAt: string | null
+  lastReadMessageId: string | null
+}
+
+export type { Room, RoomDetail, RoomUser }

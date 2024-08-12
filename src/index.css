@@ -19,24 +19,26 @@
     0% {
         transform: translateX(100%);
     }
+
     100% {
         transform: translateX(0);
     }
-  }
+}
 
-  @keyframes fly-out {
+@keyframes fly-out {
     0% {
         transform: translateX(0%);
         opacity: 1;
     }
+
     100% {
         opacity: 0;
         transform: translateX(100%);
     }
-  }
-  
+}
 
-.test-animation::after{
+
+.test-animation::after {
     content: '';
     width: 1px;
     position: absolute;
@@ -49,42 +51,41 @@
     animation-duration: 2000ms;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
-}  
+}
 
 @keyframes fly-down {
-    0%{
+    0% {
         transform: scaleY(0);
         transform-origin: top;
     }
-    50%{
+
+    50% {
         transform: scaleY(0);
     }
-    100%{
+
+    100% {
         transform: scaleY(1);
     }
 }
 
-.dark ::-webkit-scrollbar-track
-{
-	/* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+.dark ::-webkit-scrollbar-track {
+    /* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	background-color: #F5F5F5; */
     background-color: rgb(169, 169, 169);
 
 }
 
-.dark ::-webkit-scrollbar
-{
-	/* width: 10px;
+.dark ::-webkit-scrollbar {
+    /* width: 10px;
 	background-color: #F5F5F5; */
     background-color: red;
 }
 
-.dark ::-webkit-scrollbar-thumb
-{
+.dark ::-webkit-scrollbar-thumb {
     background-color: rgb(103, 103, 103);
     border: 3px solid rgb(169, 169, 169);
     border-radius: 50px;
-	/* background-color: #000000;
+    /* background-color: #000000;
 	border: 2px solid #555555; */
 }
 
@@ -93,34 +94,65 @@
     0% {
         transform: translateX(-50%);
     }
+
     100% {
         transform: translateX(0);
     }
-  }
+}
 
-  @keyframes modal-slide-out {
+@keyframes modal-slide-out {
     0% {
         transform: translateX(0%);
     }
+
     100% {
         transform: translateX(-50%);
     }
-  }
+}
 
-  @keyframes fly-around {
-    0%{
+@keyframes fly-around {
+    0% {
         transform: translateY(0%);
     }
-    25%{
+
+    25% {
         transform: translateY(70%);
     }
-    50%{
+
+    50% {
         transform: translateY(0%);
     }
-    75%{
+
+    75% {
         transform: translateY(-70%);
     }
-    100%{
+
+    100% {
         transform: translateY(0%);
+    }
+}
+
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(100px);
     }
 }

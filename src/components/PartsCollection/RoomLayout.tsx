@@ -77,7 +77,7 @@ function RoomLayout() {
           <Bars3Icon className="size-6" />
         </button>
       </div>
-      <div className="w-[30%] flex flex-col gap-2 h-full overflow-auto max-md:hidden">
+      <div className="w-[30%] flex flex-col gap-2 h-full overflow-auto max-md:hidden px-2">
         {roomList &&
           roomList.map((room) => <RoomCard room={room} key={room.id} />)}
       </div>

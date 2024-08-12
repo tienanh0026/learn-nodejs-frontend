@@ -1,9 +1,11 @@
 import baseAxios from '@modules/libs/axios'
 import { SuccessResponse } from '@modules/libs/axios/types'
-import { Room, RoomDetail } from '@modules/models/room'
+import { Room, RoomDetail, RoomUser } from '@modules/models/room'
 
 type RoomDetailResponse = SuccessResponse<RoomDetail>
 type CreateRoomResponse = SuccessResponse<Room>
+type GetRoomUserList = SuccessResponse<RoomUser[]>
+
 export const getRoomDetail = (roomId: string) => {
   return baseAxios.get<RoomDetailResponse>(`/room/${roomId}`)
 }
@@ -41,4 +43,8 @@ export const addRoomUser = ({
   return baseAxios.post(`/room/${roomId}/user/add`, {
     user: userList,
   })
+}
+
+export const getRoomUserList = ({ roomId }: { roomId: string }) => {
+  return baseAxios.get<GetRoomUserList>(`/room/${roomId}/user/list`)
 }

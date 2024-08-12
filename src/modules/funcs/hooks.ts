@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 
 const usePreviewMediaFile = (file: File | undefined) => {
   const [previewFile, setPreviewFile] = useState<
@@ -55,4 +55,18 @@ const useThemeDetector = () => {
   return { isDarkTheme, setIsDarkTheme }
 }
 
-export { usePreviewMediaFile, useThemeDetector }
+function useWindowSize(isActive: boolean) {
+  const [size, setSize] = useState([0, 0])
+  useLayoutEffect(() => {
+    if (!isActive) return
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight])
+    }
+    window.addEventListener('resize', updateSize)
+    updateSize()
+    return () => window.removeEventListener('resize', updateSize)
+  }, [isActive])
+  return size
+}
+
+export { usePreviewMediaFile, useThemeDetector, useWindowSize }

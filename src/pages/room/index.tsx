@@ -1,10 +1,10 @@
 import MessageCard from '@components/Parts/MessageCard'
 import { getMessageList } from '@modules/api/message-list'
-import { getRoomDetail } from '@modules/api/room'
+import { getRoomDetail, getRoomUserList } from '@modules/api/room'
 import { sendMessage } from '@modules/api/send-message'
 import { socket } from '@modules/libs/socket'
 import { Message } from '@modules/models/message'
-import { RoomDetail } from '@modules/models/room'
+import { RoomDetail, RoomUser } from '@modules/models/room'
 import { SocketMessage, TypingStatusMessage } from '@modules/models/socket'
 import React, {
   useCallback,
@@ -12,6 +12,7 @@ import React, {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -31,6 +32,7 @@ import {
 import { usePreviewMediaFile } from '@modules/funcs/hooks'
 import { useSelector } from 'react-redux'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
+import BaseAvatar from '@components/Parts/BaseAvatar'
 
 function RoomChat() {
   const [content, setContent] = useState('')
@@ -52,6 +54,11 @@ function RoomChat() {
   const [typingUser, setTypingUser] = useState<TypingStatusMessage['user'][]>(
     []
   )
+  const [userList, setUserList] = useState<RoomUser[]>()
+
+  const userReadList = useMemo(() => {
+    return userList && userList.filter((user) => user.readAt)
+  }, [userList])
 
   const { user } = useSelector(authState)
   const { previewFile, setPreviewFile } = usePreviewMediaFile(file)
@@ -130,6 +137,9 @@ function RoomChat() {
 
   useEffect(() => {
     if (!roomId) return
+    getRoomUserList({ roomId }).then((res) => {
+      setUserList(res.data.data)
+    })
     getMessageList({ roomId, page: 1 }).then((response) => {
       setCurrentPage({
         page: response.data.data.currentPage,
@@ -182,7 +192,6 @@ function RoomChat() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, socket])
-  console.log(typingUser)
 
   useLoadMore({
     loadMoreElement: topPanelRef.current,
@@ -227,7 +236,6 @@ function RoomChat() {
     return () => clearTimeout(typingTimeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content])
-  console.log(typingUser)
 
   return (
     <>
@@ -273,6 +281,19 @@ function RoomChat() {
             messageList.map((message) => (
               <MessageCard message={message} key={message.id} />
             ))}
+          {userReadList && (
+            <div className="ml-auto">
+              {userReadList.map((readUser) => (
+                <div key={readUser.id + '-read'} className="flex items-center">
+                  <BaseAvatar
+                    name={readUser.id}
+                    wrapperClass="w-fit mr-1 size-8"
+                  />
+                  seen
+                </div>
+              ))}
+            </div>
+          )}
           <div ref={messagesEndRef} />
           {typingUser.length !== 0 && (
             <div className="flex items-center">

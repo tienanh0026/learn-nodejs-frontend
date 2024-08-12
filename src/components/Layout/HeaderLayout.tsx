@@ -10,12 +10,19 @@ import Cookies from 'cookies-js'
 import { useThemeDetector } from '@modules/funcs/hooks'
 import { MoonIcon, SunIcon } from '@heroicons/react/24/solid'
 import ToggleButton from '@components/BaseComponent/ToggleButton'
+import BaseAvatar from '@components/Parts/BaseAvatar'
+import BaseModal from '@components/Parts/BaseModal'
+import { useRef, useState } from 'react'
+import { UserCircleIcon } from '@heroicons/react/24/outline'
 
 function HeaderLayout() {
   const { user } = useSelector(authState)
   const { isDarkTheme, setIsDarkTheme } = useThemeDetector()
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [openUserModal, setOpenUserModal] = useState(false)
+
+  const avatarRef = useRef<HTMLDivElement>(null)
 
   const handleLogout = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     e.preventDefault()
@@ -24,8 +31,41 @@ function HeaderLayout() {
     Cookies.set('refresh-token', '')
     navigate('/login')
   }
+
   return (
     <>
+      <BaseModal
+        isOpen={openUserModal}
+        openAnimationName="fade-in"
+        animationDuration={300}
+        closeAnimationName="fade-out"
+        onClose={() => {
+          setOpenUserModal(false)
+        }}
+        buttonRef={avatarRef}
+        isOptionList={true}
+        bodyClass="flex flex-col !p-0"
+      >
+        <Link
+          to="/profile"
+          className="flex items-center gap-2 py-2 px-5 justify-between hover:bg-slate-200"
+          onClick={() => {
+            setOpenUserModal(false)
+          }}
+        >
+          Profile <UserCircleIcon className="size-6" />
+        </Link>
+        <Link
+          className="flex items-center gap-2 py-2 px-5 justify-between hover:bg-slate-200"
+          to={'/login'}
+          onClick={(e) => {
+            setOpenUserModal(false)
+            handleLogout(e)
+          }}
+        >
+          Logout <ArrowRightEndOnRectangleIcon className="size-6" />
+        </Link>
+      </BaseModal>
       <header
         className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-500"
         style={{
@@ -59,12 +99,19 @@ function HeaderLayout() {
                 setIsDarkTheme(!isDarkTheme)
               }}
             />
-            {user && (
-              <Link
-                className="p-1 h-full flex items-center"
-                to={'/login'}
-                onClick={handleLogout}
-              >
+            {user ? (
+              <>
+                <BaseAvatar
+                  ref={avatarRef}
+                  name={user.name}
+                  wrapperClass="size-8"
+                  onClick={() => {
+                    setOpenUserModal(true)
+                  }}
+                />
+              </>
+            ) : (
+              <Link className="p-1 h-full flex items-center" to={'/login'}>
                 <ArrowRightEndOnRectangleIcon className="size-6" />
               </Link>
             )}
