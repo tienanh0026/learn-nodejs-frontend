@@ -7,7 +7,7 @@ type NotificationState = {
 
 export type NotiItem = {
   id: string
-  title: string
+  title: string | undefined
   type: 'success' | 'error'
 }
 

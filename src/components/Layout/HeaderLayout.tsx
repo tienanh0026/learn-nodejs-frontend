@@ -72,7 +72,7 @@ function HeaderLayout() {
           height: HEADER_HEIGHT,
         }}
       >
-        <div className="size-full flex justify-between dark:text-white sticky top-0 px-12">
+        <div className="size-full flex justify-between dark:text-white sticky top-0 md:px-12 px-4">
           <nav className="flex gap-4 items-center">
             <Link
               to=""

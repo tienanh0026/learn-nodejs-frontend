@@ -26,11 +26,7 @@ const BaseAvatar = forwardRef<HTMLDivElement, AvatarProps>(function BaseAvatar(
   )
   return (
     <div className={avatarClass} onClick={onClick} ref={ref}>
-      {src ? (
-        <img src={src} />
-      ) : (
-        <div className="p-1 aspect-square">{name[0]}</div>
-      )}
+      {src ? <img src={src} /> : name[0]}
     </div>
   )
 })

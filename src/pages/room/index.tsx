@@ -1,10 +1,10 @@
 import MessageCard from '@components/Parts/MessageCard'
 import { getMessageList } from '@modules/api/message-list'
-import { getRoomDetail, getRoomUserList } from '@modules/api/room'
+import { getRoomUserList } from '@modules/api/room'
 import { sendMessage } from '@modules/api/send-message'
 import { socket } from '@modules/libs/socket'
 import { Message } from '@modules/models/message'
-import { RoomDetail, RoomUser } from '@modules/models/room'
+import { RoomUser } from '@modules/models/room'
 import { SocketMessage, TypingStatusMessage } from '@modules/models/socket'
 import React, {
   useCallback,
@@ -33,12 +33,13 @@ import { usePreviewMediaFile } from '@modules/funcs/hooks'
 import { useSelector } from 'react-redux'
 import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 import BaseAvatar from '@components/Parts/BaseAvatar'
+import { useGetRoomDetailQuery } from '@modules/redux/api/room'
+import { useGetMessageListQuery } from '@modules/redux/api/message'
 
 function RoomChat() {
   const [content, setContent] = useState('')
   const [messageList, setMessageList] = useState<Message[]>()
   const messageListDefered = useDeferredValue(messageList)
-  const [roomDetail, setRoomDetail] = useState<RoomDetail>()
   const { onClickSusbribeToPushNotification } = usePushNotifications()
   const { roomId } = useParams()
   const [isLoadMore, setIsLoadMore] = useState(false)
@@ -59,6 +60,29 @@ function RoomChat() {
   const userReadList = useMemo(() => {
     return userList && userList.filter((user) => user.readAt)
   }, [userList])
+
+  const { data: roomDetailData } = useGetRoomDetailQuery(roomId || '', {
+    skip: !roomId,
+  })
+
+  const { data: _messageListData, refetch } = useGetMessageListQuery(
+    roomId
+      ? {
+          roomId: roomId,
+          params: {
+            page: currentPage.page + 1,
+          },
+        }
+      : {
+          roomId: '',
+          params: {
+            page: currentPage.page + 1,
+          },
+        },
+    {
+      skip: true,
+    }
+  )
 
   const { user } = useSelector(authState)
   const { previewFile, setPreviewFile } = usePreviewMediaFile(file)
@@ -126,7 +150,8 @@ function RoomChat() {
     }
   }
 
-  const isOwner = user && roomDetail && user.id === roomDetail.ownerId
+  const isOwner =
+    user && roomDetailData && user.id === roomDetailData.data.ownerId
 
   useEffect(() => {
     if (!messageListDefered) {
@@ -146,9 +171,6 @@ function RoomChat() {
         totalPage: response.data.data.totalPages,
       })
       setMessageList(() => response.data.data.list.reverse())
-    })
-    getRoomDetail(roomId).then((response) => {
-      setRoomDetail(response.data.data)
     })
   }, [roomId])
 
@@ -245,7 +267,7 @@ function RoomChat() {
             <Link to={'/room-list'} className="hover:underline p-1">
               <ChevronLeftIcon className="size-5" />
             </Link>
-            <h2 className="font-semibold">{roomDetail?.name}</h2>
+            <h2 className="font-semibold">{roomDetailData?.data?.name}</h2>
           </div>
           <div className="flex gap-2">
             <button
@@ -282,15 +304,13 @@ function RoomChat() {
               <MessageCard message={message} key={message.id} />
             ))}
           {userReadList && (
-            <div className="ml-auto">
+            <div className="ml-auto flex gap-1">
               {userReadList.map((readUser) => (
-                <div key={readUser.id + '-read'} className="flex items-center">
-                  <BaseAvatar
-                    name={readUser.id}
-                    wrapperClass="w-fit mr-1 size-8"
-                  />
-                  seen
-                </div>
+                <BaseAvatar
+                  key={readUser.id + '-read'}
+                  name={readUser.id}
+                  wrapperClass="w-fit size-5 text-xs"
+                />
               ))}
             </div>
           )}

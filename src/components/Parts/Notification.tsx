@@ -40,7 +40,10 @@ function Notification({ notification }: { notification: NotiItem }) {
           ) : (
             <img className="size-5" src="/reject-logo.svg" />
           )}
-          <span>{notification.title}</span>
+          <span>
+            {notification.title ||
+              (notification.type === 'success' ? 'Success' : 'Fail')}
+          </span>
         </div>
       </div>
     </div>
