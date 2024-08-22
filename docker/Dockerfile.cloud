@@ -3,4 +3,4 @@ WORKDIR /frontend
 COPY . .
 CMD ["sh","-c","yarn && yarn build && yarn start --host --port 8080"]
 
-EXPOSE 8080
+EXPOSE $PORT
