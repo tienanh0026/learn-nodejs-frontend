@@ -1,6 +1,16 @@
-FROM node:20
+FROM node:20-alpine
 WORKDIR /frontend
-COPY . .
-CMD ["sh","-c","yarn && yarn build && yarn start --host --port 8080"]
 
-EXPOSE $PORT
+COPY package.json yarn.lock ./ 
+
+RUN yarn
+
+COPY ./ .
+
+RUN yarn build
+
+EXPOSE 8080
+
+ENV PORT 8080
+
+CMD ["sh","-c","yarn start --host --port 8080"]

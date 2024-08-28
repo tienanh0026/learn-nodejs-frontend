@@ -1,6 +1,8 @@
 import { authState, clearAuthState } from '@modules/redux/AuthSlice/AuthSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { useLocalStorage } from '@modules/funcs/hooks'
 
 function HomePage() {
   const { user } = useSelector(authState)
@@ -10,8 +12,22 @@ function HomePage() {
     Cookies.set('access-token', '')
     Cookies.set('refresh-token', '')
   }
+  const [isCheck, setIsCheck] = useState(false)
+  const themeValue = useLocalStorage(isCheck ? 'theme' : 'token')
+
   return (
     <div className="size-full flex flex-col">
+      {themeValue}
+      <label>
+        test
+        <input
+          type="checkbox"
+          checked={isCheck}
+          onChange={(e) => {
+            setIsCheck(e.target.checked)
+          }}
+        />
+      </label>
       {user ? (
         <>
           <div className="w-full flex justify-end">

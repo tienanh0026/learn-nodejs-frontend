@@ -65,7 +65,7 @@ function RoomChat() {
     skip: !roomId,
   })
 
-  const { data: _messageListData, refetch } = useGetMessageListQuery(
+  const { data: _messageListData, refetch: _refetch } = useGetMessageListQuery(
     roomId
       ? {
           roomId: roomId,

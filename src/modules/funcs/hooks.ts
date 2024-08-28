@@ -1,4 +1,10 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useCallback,
+  useSyncExternalStore,
+} from 'react'
 
 const usePreviewMediaFile = (file: File | undefined) => {
   const [previewFile, setPreviewFile] = useState<
@@ -28,7 +34,7 @@ const usePreviewMediaFile = (file: File | undefined) => {
 }
 
 const useThemeDetector = () => {
-  const theme = window.localStorage.getItem('theme')
+  const theme = useLocalStorage('theme')
   const getCurrentTheme = () =>
     theme
       ? theme === 'dark'
@@ -69,4 +75,20 @@ function useWindowSize(isActive: boolean) {
   return size
 }
 
-export { usePreviewMediaFile, useThemeDetector, useWindowSize }
+const useLocalStorage = (key: string) => {
+  const subscribe = useCallback((callback: () => void) => {
+    window.addEventListener('storage', callback)
+    return () => {
+      console.log('remove')
+
+      window.removeEventListener('storage', callback)
+    }
+  }, [])
+  const getSnapshot = useCallback(() => {
+    return window.localStorage.getItem(key)
+  }, [key])
+  const storageValue = useSyncExternalStore(subscribe, getSnapshot)
+  return storageValue
+}
+
+export { usePreviewMediaFile, useThemeDetector, useWindowSize, useLocalStorage }
