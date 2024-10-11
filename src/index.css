@@ -156,3 +156,16 @@
         transform: translateY(100px);
     }
 }
+
+@keyframes ripple {
+    to {
+        opacity: 0;
+        transform: scale(3);
+    }
+}
+
+.dragging{
+    position: relative;
+    z-index: 1000;
+    transition: transform 0.2s ease;
+}

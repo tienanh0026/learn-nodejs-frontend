@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { useEffect, useRef } from 'react'
+import Ripple, { RippleRef } from './Ripple'
 
 type ToggleButtonProps = {
   isActive: boolean
@@ -22,7 +23,7 @@ function ToggleButton({
 }: ToggleButtonProps) {
   const toogleRef = useRef<HTMLSpanElement>(null)
   const wrapperRef = useRef<HTMLSpanElement>(null)
-
+  const rippleRef = useRef<RippleRef>(null)
   useEffect(() => {
     const { current: toggleElement } = toogleRef
     if (!toggleElement) return
@@ -39,31 +40,34 @@ function ToggleButton({
     }
   }, [isActive])
   return (
-    <>
-      <button
-        onClick={onToggle}
-        className={clsx(
-          'p-1 border border-gray-600 rounded-full transition-all size-fit',
-          isActive && activeClass,
-          wrapperClass
-        )}
+    <button
+      onMouseDown={(e) => {
+        if (!rippleRef.current) return
+        rippleRef.current.addRipple(e)
+      }}
+      onClick={onToggle}
+      className={clsx(
+        'p-1 border border-gray-600 rounded-full transition-all size-fit relative',
+        isActive && activeClass,
+        wrapperClass
+      )}
+    >
+      <Ripple duration={2000} ref={rippleRef} wrapperClass="rounded-full" />
+      <span
+        className={clsx('flex gap-3 items-center relative')}
+        ref={wrapperRef}
       >
+        {renderActiveIcon}
+        {renderInactiveIcon}
         <span
-          className={clsx('flex gap-3 items-center relative')}
-          ref={wrapperRef}
-        >
-          {renderActiveIcon}
-          {renderInactiveIcon}
-          <span
-            ref={toogleRef}
-            className={clsx(
-              'absolute bg-black dark:bg-white inset-y-0 aspect-square rounded-full transition-all',
-              toggleClass
-            )}
-          />
-        </span>
-      </button>
-    </>
+          ref={toogleRef}
+          className={clsx(
+            'absolute bg-black dark:bg-white inset-y-0 aspect-square rounded-full transition-all',
+            toggleClass
+          )}
+        />
+      </span>
+    </button>
   )
 }
 
