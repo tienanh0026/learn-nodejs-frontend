@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "prettier": "npx prettier src --check",
     "prettier:fix": "yarn prettier --write",
-    "format": "yarn prettier:fix"
+    "format": "yarn prettier:fix",
+    "test": "vitest"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.4",
@@ -22,6 +23,7 @@
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "cookies-js": "^1.2.3",
+    "jsdom": "^25.0.1",
     "postcss": "^8.4.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -33,6 +35,8 @@
     "vite-tsconfig-paths": "^4.3.2"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.0.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -41,8 +45,10 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "happy-dom": "^15.8.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
-    "vite-plugin-pwa": "^0.20.0"
+    "vite-plugin-pwa": "^0.20.0",
+    "vitest": "^2.1.4"
   }
 }

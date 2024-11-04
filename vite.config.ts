@@ -32,10 +32,12 @@ export default defineConfig({
         type: "module",
       },
     }),
+    
   ],
   server: {
     fs: {
       strict: false, // Allow serving files from the src directory
     },
   },
+  
 });
