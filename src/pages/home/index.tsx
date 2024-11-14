@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useLocalStorage } from '@modules/funcs/hooks'
+import Select from '@components/BaseComponent/Select'
 
 function HomePage() {
   const { user } = useSelector(authState)
@@ -15,6 +16,12 @@ function HomePage() {
   const [isCheck, setIsCheck] = useState(false)
   const themeValue = useLocalStorage(isCheck ? 'theme' : 'token')
 
+  const [selectValue, setSelectValue] = useState<string | number | undefined>(
+    undefined
+  )
+  const handleSelect = (select: number | string) => {
+    setSelectValue(select)
+  }
   return (
     <div className="size-full flex flex-col">
       {themeValue}
@@ -61,6 +68,13 @@ function HomePage() {
           </p>
         </>
       )}
+      <Select onSelect={handleSelect} selectValue={selectValue}>
+        <Select.Trigger>ámdalsdlamsd</Select.Trigger>
+        <Select.Content>
+          <Select.Item value={1}>ádmklasdmalksdmlk</Select.Item>
+          <Select.Item value={2}>ádmklasdmalk1sdmlk</Select.Item>
+        </Select.Content>
+      </Select>
     </div>
   )
 }
