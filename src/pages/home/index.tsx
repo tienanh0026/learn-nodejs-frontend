@@ -19,7 +19,23 @@ function HomePage() {
   const [selectValue, setSelectValue] = useState<string | number | undefined>(
     undefined
   )
-  const handleSelect = (select: number | string) => {
+
+  const selectArray = [
+    {
+      title: 'select 1',
+      value: 1,
+    },
+    {
+      title: 'select 2',
+      value: 2,
+    },
+  ]
+
+  const selectTitle = selectArray.find(
+    (selectItem) => selectItem.value === selectValue
+  )
+
+  const handleSelect = (select: number | string | undefined) => {
     setSelectValue(select)
   }
   return (
@@ -69,10 +85,16 @@ function HomePage() {
         </>
       )}
       <Select onSelect={handleSelect} selectValue={selectValue}>
-        <Select.Trigger>ámdalsdlamsd</Select.Trigger>
-        <Select.Content>
-          <Select.Item value={1}>ádmklasdmalksdmlk</Select.Item>
-          <Select.Item value={2}>ádmklasdmalk1sdmlk</Select.Item>
+        <Select.Trigger>
+          {selectValue ? selectTitle?.title : 'Please select'}
+        </Select.Trigger>
+        <Select.Content wrapperClass="min-w-[100px]">
+          <Select.Item value={undefined}>No value</Select.Item>
+          {selectArray.map((selectItem) => (
+            <Select.Item value={selectItem.value} key={selectItem.value}>
+              {selectItem.title}
+            </Select.Item>
+          ))}
         </Select.Content>
       </Select>
     </div>

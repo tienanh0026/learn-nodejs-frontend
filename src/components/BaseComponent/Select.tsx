@@ -1,4 +1,4 @@
-import { useWindowSize } from '@modules/funcs/hooks'
+import { useClickAway, useWindowSize } from '@modules/funcs/hooks'
 import clsx from 'clsx'
 import {
   createContext,
@@ -24,7 +24,7 @@ type SelectProps = {
   defaultOpenValue?: boolean
   children: React.ReactNode
   selectValue: string | number | undefined
-  onSelect: (selectValue: string | number) => void
+  onSelect: (selectValue: string | number | undefined) => void
 }
 
 type SelectTriggerProps = {
@@ -42,7 +42,7 @@ type SelectContentProps = {
 type SelectItemProps = {
   wrapperClass?: string
   children: React.ReactNode
-  value: number | string
+  value: number | string | undefined
 }
 
 const useSelectContext = () => {
@@ -109,7 +109,7 @@ function SelectTrigger({
 }
 
 function SelectContent({ children, wrapperClass }: SelectContentProps) {
-  const { isOpen, triggerElementRef } = useSelectContext()
+  const { isOpen, triggerElementRef, toggleOpen } = useSelectContext()
   const contentContainerRef = useRef<HTMLDivElement>(null)
   const size = useWindowSize(isOpen)
   useLayoutEffect(() => {
@@ -125,7 +125,9 @@ function SelectContent({ children, wrapperClass }: SelectContentProps) {
     contentContainerElement.style.left = `${triggerClientRect.left}px`
   }, [isOpen, triggerElementRef, size])
 
-  // TODO: click outside event listener
+  useClickAway(contentContainerRef, () => {
+    if (isOpen) toggleOpen()
+  })
 
   if (!isOpen) return null
   return (
@@ -133,7 +135,7 @@ function SelectContent({ children, wrapperClass }: SelectContentProps) {
       ref={contentContainerRef}
       className={clsx(
         wrapperClass,
-        'my-2 flex flex-col border border-gray-400 rounded-md overflow-hidden'
+        'my-2 flex flex-col border border-gray-400 rounded-md overflow-hidden shadow-lg'
       )}
     >
       {children}

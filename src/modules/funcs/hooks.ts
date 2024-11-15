@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useSyncExternalStore,
+  RefObject,
 } from 'react'
 
 const usePreviewMediaFile = (file: File | undefined) => {
@@ -91,4 +92,31 @@ const useLocalStorage = (key: string) => {
   return storageValue
 }
 
-export { usePreviewMediaFile, useThemeDetector, useWindowSize, useLocalStorage }
+const useClickAway = (
+  ref: RefObject<HTMLElement>,
+  handler: (event: Event) => void
+) => {
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        handler(event)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [ref, handler])
+}
+
+export {
+  usePreviewMediaFile,
+  useThemeDetector,
+  useWindowSize,
+  useLocalStorage,
+  useClickAway,
+}
