@@ -18,6 +18,8 @@ const baseAxios: AxiosInstance = Axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
 })
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {
+  console.log('call')
+
   if (config.method === 'post') {
     config.headers['Content-Type'] = 'application/json'
     console.log('Request Payload:', config.data)

@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import Ripple, { RippleRef } from './Ripple'
+import Ripple, { RippleRef } from '../Ripple'
 
 type RadioValueType = string
 

@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { createPortal } from 'react-dom'
 
 const SelectContext = createContext<
   | {
@@ -37,6 +38,7 @@ type SelectTriggerProps = {
 type SelectContentProps = {
   wrapperClass?: string
   children: React.ReactNode
+  align?: 'left' | 'center' | 'right'
 }
 
 type SelectItemProps = {
@@ -89,7 +91,9 @@ function SelectTrigger({
   return (
     <button
       type="button"
-      onClick={toggleOpen}
+      onClick={() => {
+        toggleOpen()
+      }}
       className={clsx(
         wrapperClass,
         'flex gap-2 justify-center items-center w-fit border border-gray-500 rounded-lg p-2'
@@ -108,7 +112,11 @@ function SelectTrigger({
   )
 }
 
-function SelectContent({ children, wrapperClass }: SelectContentProps) {
+function SelectContent({
+  children,
+  wrapperClass,
+  align = 'left',
+}: SelectContentProps) {
   const { isOpen, triggerElementRef, toggleOpen } = useSelectContext()
   const contentContainerRef = useRef<HTMLDivElement>(null)
   const size = useWindowSize(isOpen)
@@ -122,24 +130,46 @@ function SelectContent({ children, wrapperClass }: SelectContentProps) {
     contentContainerElement.style.top = `${
       triggerClientRect.top + triggerClientRect.height
     }px`
-    contentContainerElement.style.left = `${triggerClientRect.left}px`
-  }, [isOpen, triggerElementRef, size])
+    if (align === 'center')
+      contentContainerElement.style.left = `${
+        triggerClientRect.left +
+        triggerClientRect.width / 2 -
+        contentContainerElement.getBoundingClientRect().width / 2
+      }px`
+
+    if (align === 'left')
+      contentContainerElement.style.left = `${triggerClientRect.left}px`
+    if (align === 'right')
+      contentContainerElement.style.left = `${
+        triggerClientRect.left +
+        triggerClientRect.width -
+        contentContainerElement.getBoundingClientRect().width
+      }px`
+  }, [isOpen, triggerElementRef, size, align])
 
   useClickAway(contentContainerRef, () => {
     if (isOpen) toggleOpen()
   })
 
   if (!isOpen) return null
+
+  const root = document.getElementById('root')
+  if (!root) return null
   return (
-    <div
-      ref={contentContainerRef}
-      className={clsx(
-        wrapperClass,
-        'my-2 flex flex-col border border-gray-400 rounded-md overflow-hidden shadow-lg'
+    <>
+      {createPortal(
+        <div
+          ref={contentContainerRef}
+          className={clsx(
+            wrapperClass,
+            'my-2 flex flex-col border border-gray-400 rounded-md overflow-hidden shadow-lg'
+          )}
+        >
+          {children}
+        </div>,
+        root
       )}
-    >
-      {children}
-    </div>
+    </>
   )
 }
 

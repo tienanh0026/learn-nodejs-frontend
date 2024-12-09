@@ -88,7 +88,7 @@ function HomePage() {
         <Select.Trigger>
           {selectValue ? selectTitle?.title : 'Please select'}
         </Select.Trigger>
-        <Select.Content wrapperClass="min-w-[100px]">
+        <Select.Content wrapperClass="min-w-[100px]" align="center">
           <Select.Item value={undefined}>No value</Select.Item>
           {selectArray.map((selectItem) => (
             <Select.Item value={selectItem.value} key={selectItem.value}>

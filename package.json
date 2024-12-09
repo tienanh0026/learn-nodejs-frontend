@@ -11,11 +11,14 @@
     "preview": "vite preview",
     "prettier": "npx prettier src --check",
     "prettier:fix": "yarn prettier --write",
-    "format": "yarn prettier:fix"
+    "format": "yarn prettier:fix",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.4",
     "@reduxjs/toolkit": "^2.2.5",
+    "@storybook/react-vite": "^8.4.5",
     "@types/node": "^20.14.2",
     "@types/react-transition-group": "^4.4.10",
     "@types/serviceworker": "^0.0.87",
@@ -35,6 +38,13 @@
     "vite-tsconfig-paths": "^4.3.2"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "3.2.2",
+    "@storybook/addon-essentials": "8.4.5",
+    "@storybook/addon-interactions": "8.4.5",
+    "@storybook/addon-onboarding": "8.4.5",
+    "@storybook/blocks": "8.4.5",
+    "@storybook/react": "8.4.5",
+    "@storybook/test": "8.4.5",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -43,6 +53,8 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "eslint-plugin-storybook": "^0.11.1",
+    "storybook": "8.4.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vite-plugin-pwa": "^0.20.0"
