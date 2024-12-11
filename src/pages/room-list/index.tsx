@@ -195,7 +195,6 @@ function RoomListPage() {
                         checked={user.isInvited}
                         type="checkbox"
                         onChange={(e) => {
-                          console.log(e)
                           handleAddUser(e.target.checked, user.user)
                         }}
                       />

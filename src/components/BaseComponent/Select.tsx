@@ -17,6 +17,7 @@ const SelectContext = createContext<
       triggerElementRef: RefObject<HTMLButtonElement>
       onSelect: SelectProps['onSelect']
       selectValue: SelectProps['selectValue']
+      disabled?: boolean
     }
   | undefined
 >(undefined)
@@ -26,11 +27,12 @@ type SelectProps = {
   children: React.ReactNode
   selectValue: string | number | undefined
   onSelect: (selectValue: string | number | undefined) => void
+  disabled?: boolean
 }
 
 type SelectTriggerProps = {
   renderIcon?: React.ReactElement
-  children: React.ReactNode
+  children?: React.ReactNode
   wrapperClass?: string
   iconPosition?: 'right' | 'left'
 }
@@ -45,6 +47,7 @@ type SelectItemProps = {
   wrapperClass?: string
   children: React.ReactNode
   value: number | string | undefined
+  disabled?: boolean
 }
 
 const useSelectContext = () => {
@@ -60,6 +63,7 @@ function Select({
   children,
   onSelect,
   selectValue,
+  disabled,
 }: SelectProps) {
   const [isOpenPopup, setIsOpenPopup] = useState(defaultOpenValue)
   const toggleOpen = () => {
@@ -74,6 +78,7 @@ function Select({
         triggerElementRef,
         onSelect,
         selectValue,
+        disabled,
       }}
     >
       {children}
@@ -87,13 +92,15 @@ function SelectTrigger({
   children,
   wrapperClass,
 }: SelectTriggerProps) {
-  const { toggleOpen, triggerElementRef } = useSelectContext()
+  const { toggleOpen, triggerElementRef, disabled } = useSelectContext()
   return (
     <button
       type="button"
       onClick={() => {
+        if (disabled) return
         toggleOpen()
       }}
+      disabled={disabled}
       className={clsx(
         wrapperClass,
         'flex gap-2 justify-center items-center w-fit border border-gray-500 rounded-lg p-2'
@@ -153,8 +160,8 @@ function SelectContent({
 
   if (!isOpen) return null
 
-  const root = document.getElementById('root')
-  if (!root) return null
+  const body = document.body
+  if (!body) return null
   return (
     <>
       {createPortal(
@@ -162,29 +169,36 @@ function SelectContent({
           ref={contentContainerRef}
           className={clsx(
             wrapperClass,
-            'my-2 flex flex-col border border-gray-400 rounded-md overflow-hidden shadow-lg'
+            'my-2 flex flex-col border border-gray-400 rounded-md shadow-lg overflow-hidden'
           )}
         >
           {children}
         </div>,
-        root
+        body
       )}
     </>
   )
 }
 
-function SelectItem({ children, wrapperClass, value }: SelectItemProps) {
+function SelectItem({
+  children,
+  wrapperClass,
+  value,
+  disabled,
+}: SelectItemProps) {
   const { onSelect, toggleOpen, selectValue } = useSelectContext()
   return (
     <button
       onClick={() => {
+        if (disabled) return
         onSelect(value)
         toggleOpen()
       }}
+      disabled={disabled}
       className={clsx(
         wrapperClass,
-        'p-2 hover:bg-slate-100',
-        selectValue === value && 'bg-slate-200'
+        'p-2 hover:bg-slate-100 bg-white',
+        String(selectValue) === String(value) && 'bg-slate-300'
       )}
     >
       {children}

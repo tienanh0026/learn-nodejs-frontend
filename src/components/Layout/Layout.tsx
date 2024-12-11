@@ -27,11 +27,8 @@ function Layout({ isChat }: { isChat: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => {
-    if (!isLoading && user && isChat) {
-      console.log('123')
+    if (!isLoading && user && isChat) socket.connect()
 
-      socket.connect()
-    }
     return () => {
       socket.disconnect()
     }

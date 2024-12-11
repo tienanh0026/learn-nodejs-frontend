@@ -11,4 +11,8 @@ const formatQueryParams = (
   return `?${new URLSearchParams(newObj).toString()}`
 }
 
-export { formatQueryParams }
+const addLeadingZero = (num: number): string => {
+  return num < 10 ? `0${num}` : `${num}`
+}
+
+export { formatQueryParams, addLeadingZero }

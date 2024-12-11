@@ -17,7 +17,6 @@ function RoomLayout() {
     }
     fetchRoomList()
     socket.on('room-list', (e: RoomDetail) => {
-      console.log(e)
       setRoomList((prev) => {
         const roomList = prev ? [...prev] : []
         if (!prev) return [e]

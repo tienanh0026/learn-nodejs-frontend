@@ -55,7 +55,6 @@ export const SelectButton: Story = {
     const canvas = within(canvasElement)
     const radioButton = await canvas.findByText(values[2].label)
     await expect(radioButton).toBeInTheDocument()
-    console.log(radioButton)
     await userEvent.click(radioButton)
     // const selectedInput = canvas.getByRole('radio', { checked: true })
     const selectedInput = canvas.getByDisplayValue(values[2].value)

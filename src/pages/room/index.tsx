@@ -1,7 +1,7 @@
 import MessageCard from '@components/Parts/MessageCard'
 import { getMessageList } from '@modules/api/message-list'
 import { getRoomUserList } from '@modules/api/room'
-import { sendMessage } from '@modules/api/send-message'
+import { scheduleMessage, sendMessage } from '@modules/api/send-message'
 import { socket } from '@modules/libs/socket'
 import { Message } from '@modules/models/message'
 import { RoomUser } from '@modules/models/room'
@@ -18,6 +18,7 @@ import React, {
 } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
+  ChevronDownIcon,
   ChevronLeftIcon,
   PaperClipIcon,
   FilmIcon,
@@ -35,6 +36,9 @@ import { authState } from '@modules/redux/AuthSlice/AuthSlice'
 import BaseAvatar from '@components/Parts/BaseAvatar'
 import { useGetRoomDetailQuery } from '@modules/redux/api/room'
 import { useGetMessageListQuery } from '@modules/redux/api/message'
+import Select from '@components/BaseComponent/Select'
+import ScheduleMessageModal from '@app/features/Chat/ScheduleMessageModal/ScheduleMessageModal'
+import clsx from 'clsx'
 
 function RoomChat() {
   const [content, setContent] = useState('')
@@ -182,7 +186,6 @@ function RoomChat() {
       socket.connect()
     }
     const handleNewMessage = (e: SocketMessage) => {
-      console.log(e)
       isNew.current = true
       setMessageList((prev) => {
         if (!prev) return [e]
@@ -240,7 +243,6 @@ function RoomChat() {
   useEffect(() => {
     if (!user || !roomId) return
     if (!isTyping.current && content) {
-      console.log('start typing')
       isTyping.current = true
       socket.emit('on-typing-message', {
         user,
@@ -248,7 +250,6 @@ function RoomChat() {
       })
     }
     const typingTimeout = setTimeout(() => {
-      console.log('stop typing')
       isTyping.current = false
       socket.emit('on-stop-typing-message', {
         user,
@@ -259,8 +260,36 @@ function RoomChat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content])
 
+  const [openScheduleModal, setOpenScheduleModal] = useState(false)
+  const handleSubmitScheduleMessage = async (value: Date) => {
+    if (!roomId) return
+    if (!content && !file) return
+    try {
+      await scheduleMessage({
+        roomId,
+        message: {
+          content,
+          file,
+        },
+        time: value,
+      })
+      setContent('')
+      setFile(undefined)
+      setOpenScheduleModal(false)
+    } catch {
+      //
+    }
+  }
+
   return (
     <>
+      {openScheduleModal && (
+        <ScheduleMessageModal
+          isOpen={openScheduleModal}
+          onClose={() => setOpenScheduleModal(false)}
+          onSubmitScheduleMessage={handleSubmitScheduleMessage}
+        />
+      )}
       <div className="size-full flex flex-col">
         <div className="w-full p-2 px-4 border-b border-gray-300 flex justify-between gap-2">
           <div className="flex gap-2 items-center">
@@ -351,9 +380,36 @@ function RoomChat() {
             >
               <PaperClipIcon className="size-5" />
             </button>
-            <button className="p-2 bg-blue-600 font-medium text-white rounded-md border border-black">
-              Send
-            </button>
+            <div className="flex rounded-md border border-black overflow-hidden">
+              <button
+                disabled={!content && !file}
+                className="p-2 disabled:bg-gray-200 disabled:cursor-not-allowed disabled:text-black bg-blue-600 font-medium text-white border-r border-black"
+              >
+                Send
+              </button>
+              <Select
+                selectValue={undefined}
+                onSelect={(value) => {
+                  if (value === 'schedule-message') setOpenScheduleModal(true)
+                }}
+                disabled={!content && !file}
+              >
+                <Select.Trigger
+                  wrapperClass="border-none px-1 bg-blue-600 rounded-none disabled:bg-gray-200 disabled:cursor-not-allowed"
+                  renderIcon={
+                    <ChevronDownIcon
+                      className={clsx('size-4')}
+                      color={!content && !file ? 'black' : 'white'}
+                    />
+                  }
+                ></Select.Trigger>
+                <Select.Content align="right">
+                  <Select.Item value={'schedule-message'}>
+                    Schedule Message
+                  </Select.Item>
+                </Select.Content>
+              </Select>
+            </div>
             <input
               type="file"
               className="hidden"

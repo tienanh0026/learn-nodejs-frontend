@@ -91,7 +91,7 @@ function RoomSettingPage() {
               {roomDetail?.image ? (
                 <img
                   src={import.meta.env.VITE_BASE_URL + roomDetail?.image}
-                  className="size-full"
+                  className="size-full object-cover"
                 />
               ) : (
                 <PhotoIcon />

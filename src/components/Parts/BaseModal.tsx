@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import { RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-type BaseModalProps = {
+export type BaseModalProps = {
   isOpen: boolean
   onClose: () => void
   children: React.ReactNode
@@ -14,6 +14,7 @@ type BaseModalProps = {
   animationDuration?: number
   isOptionList?: boolean
   buttonRef?: RefObject<HTMLElement>
+  bgClass?: string
 }
 
 function BaseModal({
@@ -27,6 +28,7 @@ function BaseModal({
   bodyClass,
   isOptionList = false,
   buttonRef,
+  bgClass,
 }: BaseModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
   const modalBodyRef = useRef<HTMLDivElement>(null)
@@ -101,7 +103,10 @@ function BaseModal({
           ref={modalRef}
           className={clsx('fixed inset-0 z-50 dark:text-white', wrapperClass)}
         >
-          <div className="absolute size-full z-0" onClick={onClose}></div>
+          <div
+            className={clsx('absolute size-full z-0', bgClass)}
+            onClick={onClose}
+          ></div>
           <div
             ref={modalBodyRef}
             className={clsx(

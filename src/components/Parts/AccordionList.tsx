@@ -24,7 +24,6 @@ function AccordionList<T>({
   }
   useEffect(() => {
     if (!listRef.current) return
-    console.log(listRef.current.scrollHeight)
     listRef.current.style.maxHeight = toogle
       ? `${listRef.current.scrollHeight}px`
       : '0px'

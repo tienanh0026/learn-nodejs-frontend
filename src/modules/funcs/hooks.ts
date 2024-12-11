@@ -80,8 +80,6 @@ const useLocalStorage = (key: string) => {
   const subscribe = useCallback((callback: () => void) => {
     window.addEventListener('storage', callback)
     return () => {
-      console.log('remove')
-
       window.removeEventListener('storage', callback)
     }
   }, [])
