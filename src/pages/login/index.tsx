@@ -1,6 +1,4 @@
-import { login } from '@modules/api/login'
-import { ErrorResponse } from '@modules/libs/axios/types'
-import axios from 'axios'
+import { useLogin } from '@modules/api/login'
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Cookies from 'cookies-js'
@@ -14,30 +12,34 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const mailId = useId()
   const passwordId = useId()
-  const [error, setError] = useState<string>()
-  const [loading, setLoading] = useState(false)
   const dispatch = useDispatch()
+  const { execute, isLoading, error } = useLogin({
+    email: mail,
+    password: password,
+  })
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
-      setLoading(true)
-      const response = await login({ email: mail, password: password })
-      Cookies.set('access-token', response.data.data.accessToken, {
-        expires: COOKIES_EXPIRED_AT,
-      })
-      Cookies.set('refresh-token', response.data.data.refreshToken, {
-        expires: COOKIES_EXPIRED_AT,
-      })
-      const userResponse = await getCurrentUser()
-      dispatch(
-        setAuthState({ isAuthenticated: true, user: userResponse.data.data })
-      )
-    } catch (error) {
-      if (axios.isAxiosError<ErrorResponse>(error)) {
-        setError(error.response?.data.message)
+      const response = await execute()
+      if (response?.data) {
+        Cookies.set('access-token', response?.data.accessToken, {
+          expires: COOKIES_EXPIRED_AT,
+        })
+        Cookies.set('refresh-token', response?.data.refreshToken, {
+          expires: COOKIES_EXPIRED_AT,
+        })
+
+        const userResponse = await getCurrentUser()
+        dispatch(
+          setAuthState({
+            isAuthenticated: true,
+            user: userResponse.data.data,
+          })
+        )
       }
-    } finally {
-      setLoading(false)
+    } catch {
+      console.log(error?.errors?.email)
     }
   }
   return (
@@ -59,6 +61,9 @@ export default function LoginPage() {
             }}
           />
         </label>
+        {error?.errors && (
+          <p className="text-red-400 font-medium">{error.errors.email}</p>
+        )}
         <label htmlFor={passwordId}>
           <p className="font-bold">Password</p>
           <input
@@ -71,9 +76,11 @@ export default function LoginPage() {
             }}
           />
         </label>
-        {error && <p className="text-red-400 font-medium">{error}</p>}
+        {error?.errors && (
+          <p className="text-red-400 font-medium">{error.errors.password}</p>
+        )}
         <button
-          disabled={loading}
+          disabled={isLoading}
           className="mt-4 p-2 py-1 font-bold bg-blue-400 w-fit rounded-md"
         >
           Submit
