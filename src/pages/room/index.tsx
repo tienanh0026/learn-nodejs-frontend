@@ -282,14 +282,12 @@ function RoomChat() {
 
   return (
     <>
-      {openScheduleModal && (
-        <ScheduleMessageModal
-          isOpen={openScheduleModal}
-          onClose={() => setOpenScheduleModal(false)}
-          onSubmitScheduleMessage={handleSubmitScheduleMessage}
-          key={`${openScheduleModal}`}
-        />
-      )}
+      <ScheduleMessageModal
+        isOpen={openScheduleModal}
+        onClose={() => setOpenScheduleModal(false)}
+        onSubmitScheduleMessage={handleSubmitScheduleMessage}
+        key={`${openScheduleModal}`}
+      />
       <div className="size-full flex flex-col">
         <div className="w-full p-2 px-4 border-b border-gray-300 flex justify-between gap-2">
           <div className="flex gap-2 items-center">
@@ -399,7 +397,7 @@ function RoomChat() {
                       cy="12"
                       r="10"
                       stroke="currentColor"
-                      stroke-width="4"
+                      strokeWidth="4"
                     ></circle>
                     <path
                       className="opacity-75"

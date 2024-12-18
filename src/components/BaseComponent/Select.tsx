@@ -93,13 +93,15 @@ function SelectTrigger({
   wrapperClass,
 }: SelectTriggerProps) {
   const { toggleOpen, triggerElementRef, disabled } = useSelectContext()
+  const handleSelectToggle: React.MouseEventHandler = (e) => {
+    if (disabled) return
+    e.stopPropagation()
+    toggleOpen()
+  }
   return (
     <button
       type="button"
-      onClick={() => {
-        if (disabled) return
-        toggleOpen()
-      }}
+      onClick={handleSelectToggle}
       disabled={disabled}
       className={clsx(
         wrapperClass,
