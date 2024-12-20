@@ -7,6 +7,8 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  KeyboardEvent,
+  useCallback,
 } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -18,6 +20,8 @@ const SelectContext = createContext<
       onSelect: SelectProps['onSelect']
       selectValue: SelectProps['selectValue']
       disabled?: boolean
+      registerItem: (ref: RefObject<HTMLButtonElement>) => void
+      unregisterItem: (ref: RefObject<HTMLButtonElement>) => void
     }
   | undefined
 >(undefined)
@@ -58,18 +62,52 @@ const useSelectContext = () => {
   return context
 }
 
-function Select({
+export const Select = ({
   defaultOpenValue = false,
   children,
   onSelect,
   selectValue,
   disabled,
-}: SelectProps) {
+}: SelectProps) => {
   const [isOpenPopup, setIsOpenPopup] = useState(defaultOpenValue)
+  const [items, setItems] = useState<RefObject<HTMLButtonElement>[]>([])
   const toggleOpen = () => {
     setIsOpenPopup(!isOpenPopup)
   }
   const triggerElementRef = useRef<HTMLButtonElement>(null)
+
+  const registerItem = useCallback((ref: RefObject<HTMLButtonElement>) => {
+    setItems((prev) => [...prev, ref])
+  }, [])
+
+  const unregisterItem = useCallback((ref: RefObject<HTMLButtonElement>) => {
+    setItems((prev) => prev.filter((item) => item !== ref))
+  }, [])
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (!isOpenPopup) return
+    const currentIndex = items.findIndex(
+      (item) => item.current === document.activeElement
+    )
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      if (currentIndex < 0) {
+        items[0].current?.focus()
+      } else {
+        const nextIndex = (currentIndex + 1) % items.length
+        items[nextIndex].current?.focus()
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (currentIndex < 0) {
+        items[0].current?.focus()
+      } else {
+        const prevIndex = (currentIndex - 1 + items.length) % items.length
+        items[prevIndex].current?.focus()
+      }
+    }
+  }
+
   return (
     <SelectContext.Provider
       value={{
@@ -79,20 +117,22 @@ function Select({
         onSelect,
         selectValue,
         disabled,
+        registerItem,
+        unregisterItem,
       }}
     >
-      {children}
+      <div onKeyDown={handleKeyDown}>{children}</div>
     </SelectContext.Provider>
   )
 }
 
-function SelectTrigger({
+export const SelectTrigger = ({
   renderIcon,
   iconPosition = 'right',
   children,
   wrapperClass,
-}: SelectTriggerProps) {
-  const { toggleOpen, triggerElementRef, disabled } = useSelectContext()
+}: SelectTriggerProps) => {
+  const { toggleOpen, triggerElementRef, disabled, isOpen } = useSelectContext()
   const handleSelectToggle: React.MouseEventHandler = (e) => {
     if (disabled) return
     e.stopPropagation()
@@ -108,6 +148,8 @@ function SelectTrigger({
         'flex gap-2 justify-center items-center w-fit border border-gray-500 rounded-lg p-2'
       )}
       ref={triggerElementRef}
+      aria-haspopup="listbox"
+      aria-expanded={isOpen}
     >
       {children}
       <span
@@ -121,11 +163,11 @@ function SelectTrigger({
   )
 }
 
-function SelectContent({
+export const SelectContent = ({
   children,
   wrapperClass,
   align = 'left',
-}: SelectContentProps) {
+}: SelectContentProps) => {
   const { isOpen, triggerElementRef, toggleOpen } = useSelectContext()
   const contentContainerRef = useRef<HTMLDivElement>(null)
   const size = useWindowSize(isOpen)
@@ -173,6 +215,7 @@ function SelectContent({
             wrapperClass,
             'my-2 flex flex-col border border-gray-400 rounded-md shadow-lg overflow-hidden'
           )}
+          role="listbox"
         >
           {children}
         </div>,
@@ -182,26 +225,50 @@ function SelectContent({
   )
 }
 
-function SelectItem({
+export const SelectItem = ({
   children,
   wrapperClass,
   value,
   disabled,
-}: SelectItemProps) {
-  const { onSelect, toggleOpen, selectValue } = useSelectContext()
+}: SelectItemProps) => {
+  const { onSelect, toggleOpen, selectValue, registerItem, unregisterItem } =
+    useSelectContext()
+  const itemRef = useRef<HTMLButtonElement>(null)
+
+  useLayoutEffect(() => {
+    if (itemRef.current) {
+      registerItem(itemRef)
+      return () => unregisterItem(itemRef)
+    }
+  }, [registerItem, unregisterItem])
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      if (!disabled) {
+        onSelect(value)
+        toggleOpen()
+      }
+    }
+  }
+
   return (
     <button
+      ref={itemRef}
       onClick={() => {
         if (disabled) return
         onSelect(value)
         toggleOpen()
       }}
+      onKeyDown={handleKeyDown}
       disabled={disabled}
       className={clsx(
         wrapperClass,
         'p-2 hover:bg-slate-100 bg-white',
         String(selectValue) === String(value) && 'bg-slate-300'
       )}
+      role="option"
+      aria-selected={String(selectValue) === String(value)}
     >
       {children}
     </button>
