@@ -17,9 +17,9 @@ jobs:
       port: ${{ env.PORT }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build the Docker image using Docker Compose
-        run: docker-compose -f docker-compose.yml build
+        run: docker compose -f docker-compose.yml build
 
   verify:
     runs-on: ubuntu-latest
@@ -31,13 +31,20 @@ jobs:
         env:
           PORT: ${{ needs.build.outputs.port }}
         run: |
-          docker-compose -f docker-compose.yml up -d
+          echo "Starting container..."
+          docker compose -f docker-compose.yml up -d
           echo "Waiting for the container to start..."
-
-          # Poll the service until it responds
-          for i in {1..10}; do
-            curl -f http://localhost:${PORT} && break || sleep 5
+          for i in {1..20}; do
+            if curl -f http://localhost:${PORT}; then
+              echo "Service is up and running!"
+              break
+            fi
+            echo "Retrying in 5 seconds..."
+            sleep 5
           done
-
-          echo "Service is up and running!"
+          if ! curl -f http://localhost:${PORT}; then
+            echo "Service did not start in time."
+            docker logs $(docker ps -q --filter "ancestor=<image-name>")
+            exit 1
+          fi
           docker ps  # Check running containers

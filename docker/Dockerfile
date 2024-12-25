@@ -3,10 +3,9 @@ WORKDIR /frontend
 
 COPY package.json yarn.lock ./
 RUN yarn
-
 COPY . .
 RUN yarn build
 
-CMD ["yarn", "start", "--host", "--port", "$PORT"]
+CMD ["sh","-c","yarn start --host --port $PORT"]
 
 EXPOSE ${PORT}
