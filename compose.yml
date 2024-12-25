@@ -1,9 +1,9 @@
 services:
   frontend:
-    build: 
-      dockerfile: docker/Dockerfile.cloud
-      context: .
-    # volumes:
-    #   - ./:/frontend/
+    build:
+      dockerfile: docker/Dockerfile
+      # context: .
+    volumes:
+      - ./:/frontend/
     ports:
-      - 8080:8080
+      - ${PORT}:${PORT}

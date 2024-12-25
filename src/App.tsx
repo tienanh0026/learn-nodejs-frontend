@@ -1,5 +1,5 @@
 import NotificationList from '@components/Layout/NotificationList/NotificationList'
-import RouterConfig from './modules/routes'
+import RouterConfig from './routes'
 
 function App() {
   return (

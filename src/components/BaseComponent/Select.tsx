@@ -145,7 +145,7 @@ export const SelectTrigger = ({
       disabled={disabled}
       className={clsx(
         wrapperClass,
-        'flex gap-2 justify-center items-center w-fit border border-gray-500 rounded-lg p-2'
+        'size-full flex gap-2 justify-center items-center w-fit border border-gray-500 rounded-lg p-2'
       )}
       ref={triggerElementRef}
       aria-haspopup="listbox"
