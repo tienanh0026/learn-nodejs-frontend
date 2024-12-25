@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - '${PORT}:${PORT}'
+    environment:
+      - PORT=${PORT}

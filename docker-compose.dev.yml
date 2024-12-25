@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.dev
       # context: .
     volumes:
       - ./:/frontend/

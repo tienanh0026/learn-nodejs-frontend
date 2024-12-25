@@ -1,6 +1,12 @@
-FROM node:20
+FROM node:20-alpine
 WORKDIR /frontend
-ENV PORT=3001
-CMD ["sh","-c","yarn && yarn build && yarn start --host --port $PORT"]
+
+COPY package.json yarn.lock ./
+RUN yarn
+
+COPY . .
+RUN yarn build
+
+CMD ["yarn", "start", "--host", "--port", "$PORT"]
 
 EXPOSE ${PORT}
