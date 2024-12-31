@@ -19,7 +19,6 @@ const baseAxios: AxiosInstance = Axios.create({
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {
   if (config.method === 'post') {
     config.headers['Content-Type'] = 'application/json'
-    console.log('Request Payload:', config.data)
   }
   const token = Cookies.get('access-token')
   config.headers.Authorization = `Bearer ${token}`

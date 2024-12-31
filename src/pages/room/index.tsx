@@ -147,7 +147,6 @@ function RoomChat() {
 
   useKeepScrollPosition({
     deps: [messageList],
-    isKeep: !isNew.current,
     container: infiniteChatScrollRef.current?.containerElement || null,
   })
 

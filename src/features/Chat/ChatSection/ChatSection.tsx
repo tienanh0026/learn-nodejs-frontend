@@ -28,8 +28,6 @@ const InfiniteChatScroll = forwardRef<
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    console.log('scroll to bottom')
-
     const scrollTop = containerRef.current?.scrollHeight
     containerRef.current?.scrollTo({
       top: scrollTop,

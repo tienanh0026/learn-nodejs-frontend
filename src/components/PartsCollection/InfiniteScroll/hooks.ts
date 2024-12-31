@@ -33,34 +33,26 @@ const useLoadMore = ({
 const useKeepScrollPosition = <T extends DependencyList>({
   deps,
   container,
-  isKeep = true,
 }: {
   deps: T
   container: HTMLElement | null
-  isKeep: boolean
 }) => {
-  const prevScroll = useRef<number | undefined>()
+  const prevScrollHeight = useRef<number | null>(null)
 
   useLayoutEffect(() => {
-    if (!isKeep) return
-    if (container) {
-      const height = container.scrollHeight
-      console.log('After Element height:', height)
-      if (prevScroll.current)
-        container.scroll({
-          top: height - prevScroll.current,
-        })
+    if (!container) return
+
+    // Capture the previous scroll height before new items are added
+    if (prevScrollHeight.current === null) {
+      prevScrollHeight.current = container.scrollHeight
     }
+    // Adjust scroll position after new items are added
+    const addedHeight = container.scrollHeight - prevScrollHeight.current
+    container.scrollTop += addedHeight
+    // Update the reference to the latest scroll height
+    prevScrollHeight.current = container.scrollHeight
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container, isKeep, ...deps]) // Include container and other dependencies
-  useEffect(() => {
-    return () => {
-      if (!isKeep) return
-      prevScroll.current = container?.scrollHeight
-      console.log('Before Element height:', prevScroll.current)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [container, isKeep, ...deps])
+  }, [container, ...deps])
 }
 
 export { useLoadMore, useKeepScrollPosition }
