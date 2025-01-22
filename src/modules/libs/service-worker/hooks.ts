@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // import axios from 'axios';
 import { useState, useEffect } from 'react'
 import * as serviceWorker from './'

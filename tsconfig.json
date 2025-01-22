@@ -20,6 +20,7 @@
       "@pages/*": ["pages/*"],
       "@components/*": ["components/*"],
       "@modules/*": ["modules/*"],
+      "@libs/*": ["libs/*"],
       "@app/*": ["./*"]
     },
     "types": ["vite-plugin-pwa/react"]

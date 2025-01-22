@@ -148,6 +148,7 @@ function RoomChat() {
   useKeepScrollPosition({
     deps: [messageList],
     container: infiniteChatScrollRef.current?.containerElement || null,
+    mediaInitialHeight: 300,
   })
 
   useLayoutEffect(() => {
@@ -191,6 +192,7 @@ function RoomChat() {
         disabledLoadMore={isLoadMore && !!messageList}
         ref={infiniteChatScrollRef}
       >
+        {isLoadMore && <div>Loading...</div>}
         {messageList &&
           messageList.map((message) => (
             <MessageCard message={message} key={message.id} />

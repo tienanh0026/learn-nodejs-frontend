@@ -199,7 +199,7 @@ function SendMessageInput({
             ) : (
               <FilmIcon className="h-full flex-1 w-fit" />
             )}
-            <p className="text-sm pt-1/2 text-gray-600 truncate text-medium shrink-0">
+            <p className="text-sm pt-1/2 text-gray-600 truncate text-medium shrink-0 max-w-24">
               {file?.name}
             </p>
           </div>
