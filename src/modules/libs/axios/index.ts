@@ -20,8 +20,10 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
   if (config.method === 'post') {
     config.headers['Content-Type'] = 'application/json'
   }
-  const token = Cookies.get('access-token')
-  config.headers.Authorization = `Bearer ${token}`
+  if (!config.headers.Authorization) {
+    const token = Cookies.get('access-token')
+    config.headers.Authorization = `Bearer ${token}`
+  }
   return config
 }
 

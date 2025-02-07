@@ -3,10 +3,10 @@ import RouterConfig from './routes'
 
 function App() {
   return (
-    <>
+    <div className="dark:text-white dark:bg-slate-400">
       <RouterConfig />
       <NotificationList />
-    </>
+    </div>
   )
 }
 

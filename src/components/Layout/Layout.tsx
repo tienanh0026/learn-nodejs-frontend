@@ -54,7 +54,13 @@ function Layout({ isChat }: { isChat: boolean }) {
           </div>
         </main>
       ) : (
-        <main className="p-12 max-md:p-0 transition-all dark:text-white">
+        <main
+          className="p-12 max-md:p-0 transition-all dark:text-white"
+          style={{
+            minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
+            height: 0,
+          }}
+        >
           <Outlet />
         </main>
       )}

@@ -45,11 +45,11 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center h-full gap-8">
       <form
-        className="flex flex-col gap-2 items-center"
+        className="flex flex-col gap-4 items-center w-full  max-w-72"
         onSubmit={handleSubmit}
       >
         <h1 className="font-bold text-center text-2xl">LOGIN PAGE</h1>
-        <label htmlFor={mailId} className="flex flex-col gap-2 mt-4">
+        <label htmlFor={mailId} className="flex flex-col gap-2 mt-4 w-full">
           <p className="font-bold">Email</p>
           <input
             className="p-2 rounded-md py-1 dark:text-black"
@@ -64,21 +64,26 @@ export default function LoginPage() {
         {error?.errors && (
           <p className="text-red-400 font-medium">{error.errors.email}</p>
         )}
-        <label htmlFor={passwordId}>
-          <p className="font-bold">Password</p>
-          <input
-            className="p-2 rounded-md py-1 dark:text-black"
-            id={passwordId}
-            type="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-            }}
-          />
-        </label>
-        {error?.errors && (
-          <p className="text-red-400 font-medium">{error.errors.password}</p>
-        )}
+        <div className="flex flex-col gap-3 items-center w-full">
+          <label htmlFor={passwordId} className="w-full">
+            <p className="font-bold">Password</p>
+            <input
+              className="p-2 rounded-md py-1 dark:text-black w-full"
+              id={passwordId}
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+              }}
+            />
+          </label>
+          {error?.errors && (
+            <p className="text-red-400 font-medium">{error.errors.password}</p>
+          )}
+          <Link to="/forget-password" className="self-end text-sm underline">
+            Forgot password
+          </Link>
+        </div>
         <button
           disabled={isLoading}
           className="mt-4 p-2 py-1 font-bold bg-blue-400 w-fit rounded-md"
