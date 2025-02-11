@@ -10,6 +10,10 @@ import RoomSettingPage from '@pages/room/setting'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import RoomStreamPage from '@pages/room/stream'
 import Layout from '@components/Layout/Layout'
+import ForgetPasswordPage from '@pages/forget-password'
+import ForgetPasswordProvider from '@pages/forget-password/provider'
+import VerifyOtpPage from '@pages/forget-password/verify'
+import ChangePasswordPage from '@pages/change-password'
 
 function RouterConfig() {
   return (
@@ -19,6 +23,14 @@ function RouterConfig() {
           <Route element={<PublicGuard />}>
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route element={<ForgetPasswordProvider />}>
+              <Route path="/forget-password" element={<ForgetPasswordPage />} />
+              <Route
+                path="/forget-password/verify"
+                element={<VerifyOtpPage />}
+              />
+              <Route path="/change-password" element={<ChangePasswordPage />} />
+            </Route>
           </Route>
           <Route element={<AuthGuard />}>
             <Route element={<RoomLayout />}>
