@@ -31,10 +31,9 @@ import InfiniteChatScroll, {
 import { useKeepScrollPosition } from '@components/PartsCollection/InfiniteScroll/hooks'
 
 function RoomChat() {
+  // State management
   const [messageList, setMessageList] = useState<Message[]>()
   const messageListDefered = useDeferredValue(messageList)
-  const { onClickSusbribeToPushNotification } = usePushNotifications()
-  const { roomId } = useParams()
   const [isLoadMore, setIsLoadMore] = useState(false)
   const [currentPage, setCurrentPage] = useState<{
     page: number
@@ -48,16 +47,27 @@ function RoomChat() {
   )
   const [userList, setUserList] = useState<RoomUser[]>()
 
-  const userReadList = useMemo(() => {
-    return userList && userList.filter((user) => user.readAt)
-  }, [userList])
+  // Refs
+  const isNew = useRef<boolean>(false)
+  const infiniteChatScrollRef = useRef<ExposeInfiniteChatScrollRef>(null)
 
+  // Hooks
+  const { onClickSusbribeToPushNotification } = usePushNotifications()
+  const { roomId } = useParams()
+  const { user } = useSelector(authState)
   const { data: roomDetailData } = useGetRoomDetailQuery(roomId || '', {
     skip: !roomId,
   })
 
-  const { user } = useSelector(authState)
-  const isNew = useRef<boolean>(false)
+  // Derived state
+  const userReadList = useMemo(() => {
+    return userList?.filter((user) => user.readAt)
+  }, [userList])
+
+  const isOwner =
+    user && roomDetailData && user.id === roomDetailData.data.ownerId
+
+  // Handlers
   const handleLoadMoreMessage = useCallback(() => {
     if (!roomId) return
     if (currentPage.totalPage && currentPage.page < currentPage.totalPage) {
@@ -80,9 +90,7 @@ function RoomChat() {
     }
   }, [currentPage, roomId])
 
-  const isOwner =
-    user && roomDetailData && user.id === roomDetailData.data.ownerId
-
+  // Effects
   useLayoutEffect(() => {
     if (!messageListDefered && infiniteChatScrollRef.current) {
       infiniteChatScrollRef.current.scrollToBottom()
@@ -92,58 +100,55 @@ function RoomChat() {
 
   useEffect(() => {
     if (!roomId) return
-    getRoomUserList({ roomId }).then((res) => {
-      setUserList(res.data.data)
-    })
-    getMessageList({ roomId, page: 1 }).then((response) => {
+    // Initial data loading
+    Promise.all([
+      getRoomUserList({ roomId }),
+      getMessageList({ roomId, page: 1 }),
+    ]).then(([userListRes, messageListRes]) => {
+      setUserList(userListRes.data.data)
       setCurrentPage({
-        page: response.data.data.currentPage,
-        totalPage: response.data.data.totalPages,
+        page: messageListRes.data.data.currentPage,
+        totalPage: messageListRes.data.data.totalPages,
       })
-      setMessageList(() => response.data.data.list.reverse())
+      setMessageList(() => messageListRes.data.data.list.reverse())
     })
   }, [roomId])
 
   useEffect(() => {
     if (!roomId) return
-    // Establish connection if it's not already connected
+
     if (!socket.connected) {
       socket.connect()
     }
+
     const handleNewMessage = (e: SocketMessage) => {
       isNew.current = true
-      setMessageList((prev) => {
-        if (!prev) return [e]
-        return [...prev, e]
-      })
-    }
-    const handleTypingStatus = (data: TypingStatusMessage) => {
-      if (data.user.id === user?.id) return
-      const existedUser = typingUser?.find(
-        (typingUser) => typingUser.id === user?.id
-      )
-      if (data.isTyping && !existedUser)
-        setTypingUser([...typingUser, data.user])
-      if (!data.isTyping) {
-        const newTypingUser = [...typingUser].filter(
-          (userItem) => userItem.id !== data.user.id
-        )
-        setTypingUser(newTypingUser)
-      }
+      setMessageList((prev) => (prev ? [...prev, e] : [e]))
     }
 
-    // Attach event listeners
+    const handleTypingStatus = (data: TypingStatusMessage) => {
+      if (data.user.id === user?.id) return
+
+      setTypingUser((prev) => {
+        const existedUser = prev.find((u) => u.id === data.user.id)
+        if (data.isTyping && !existedUser) {
+          return [...prev, data.user]
+        }
+        if (!data.isTyping) {
+          return prev.filter((u) => u.id !== data.user.id)
+        }
+        return prev
+      })
+    }
+
     socket.on(`${roomId}-message`, handleNewMessage)
     socket.on(`${roomId}-typing`, handleTypingStatus)
-    // Clean up event listeners when roomId or component changes
+
     return () => {
       socket.off(`${roomId}-message`, handleNewMessage)
       socket.off(`${roomId}-typing`, handleTypingStatus)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId, socket])
-
-  const infiniteChatScrollRef = useRef<ExposeInfiniteChatScrollRef>(null)
+  }, [roomId, user?.id])
 
   useKeepScrollPosition({
     deps: [messageList],
@@ -152,8 +157,9 @@ function RoomChat() {
   })
 
   useLayoutEffect(() => {
-    if (isNew.current && infiniteChatScrollRef.current?.scrollToBottom)
+    if (isNew.current && infiniteChatScrollRef.current?.scrollToBottom) {
       infiniteChatScrollRef.current.scrollToBottom()
+    }
   }, [messageList?.length])
 
   return (
@@ -169,22 +175,25 @@ function RoomChat() {
           <button
             type="button"
             onClick={async () => {
-              const subscription =
-                await onClickSusbribeToPushNotification().then()
+              const subscription = await onClickSusbribeToPushNotification()
               if (!subscription || !roomId) return
               const key = subscription.toJSON().keys
               if (!key) return
               getPushNoti({
-                roomId: roomId,
+                roomId,
                 endpoint: subscription.endpoint,
-                key: key,
+                key,
               })
             }}
           >
             <BellIcon className="size-5" />
           </button>
-          {isOwner && <Link to={`/room/${roomId}/setting`}>Setting</Link>}
-          {isOwner && <Link to={`/room/${roomId}/livestream`}>Livestream</Link>}
+          {isOwner && (
+            <>
+              <Link to={`/room/${roomId}/setting`}>Setting</Link>
+              <Link to={`/room/${roomId}/livestream`}>Livestream</Link>
+            </>
+          )}
         </div>
       </div>
       <InfiniteChatScroll
@@ -193,10 +202,9 @@ function RoomChat() {
         ref={infiniteChatScrollRef}
       >
         {isLoadMore && <div>Loading...</div>}
-        {messageList &&
-          messageList.map((message) => (
-            <MessageCard message={message} key={message.id} />
-          ))}
+        {messageList?.map((message) => (
+          <MessageCard message={message} key={message.id} />
+        ))}
         {userReadList && (
           <div className="ml-auto flex gap-1">
             {userReadList.map((readUser) => (

@@ -14,6 +14,7 @@ import ForgetPasswordPage from '@pages/forget-password'
 import ForgetPasswordProvider from '@pages/forget-password/provider'
 import VerifyOtpPage from '@pages/forget-password/verify'
 import ChangePasswordPage from '@pages/change-password'
+import TestPage from '@pages/test'
 
 function RouterConfig() {
   return (
@@ -48,6 +49,7 @@ function RouterConfig() {
           </Route>
         </Route>
         <Route element={<Layout isChat={false} />}>
+          <Route path="/test" element={<TestPage />} />
           <Route path="/" element={<HomePage />} />
         </Route>
       </Routes>

@@ -1,7 +1,7 @@
 import { authState, clearAuthState } from '@modules/redux/AuthSlice/AuthSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocalStorage } from '@modules/funcs/hooks'
 import Select from '@components/BaseComponent/Select'
 
@@ -38,8 +38,31 @@ function HomePage() {
   const handleSelect = (select: number | string | undefined) => {
     setSelectValue(select)
   }
+
+  const renderCount = useRef(0)
+  const [a1, setA1] = useState(0)
+  const [a2, setA2] = useState(0)
+
+  useEffect(() => {
+    renderCount.current += 1
+    console.log(renderCount.current)
+  }, [a1, a2])
+  const handleTestRenderClick = () => {
+    setA1(a1 + 1)
+    // setA2((prev) => {
+    //   console.log('a1 ', a1)
+
+    //   return prev + 1
+    // })
+  }
+  useEffect(() => {
+    setTimeout(() => {
+      console.log('a1 ', a1)
+    }, 1000)
+  }, [a1])
   return (
     <div className="size-full flex flex-col">
+      <button onClick={handleTestRenderClick}>test render</button>
       {themeValue}
       <label>
         test

@@ -18,20 +18,19 @@ const InfiniteChatScroll = forwardRef<
     onLoadMoreMessage: () => void
     disabledLoadMore: boolean
   }>
->(function InfiniteChatScroll(
-  { children, onLoadMoreMessage, disabledLoadMore },
-  ref
-) {
+>(({ children, onLoadMoreMessage, disabledLoadMore }, ref) => {
   const topPanelId = useId()
   const topPanelRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-    const scrollTop = containerRef.current?.scrollHeight
-    containerRef.current?.scrollTo({
-      top: scrollTop,
-    })
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: containerRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -51,11 +50,6 @@ const InfiniteChatScroll = forwardRef<
     },
   })
 
-  //   useKeepScrollPosition({
-  //     deps: [message?.length],
-  //     isKeep: false,
-  //     container: containerRef.current,
-  //   })
   return (
     <div
       className="flex-1 flex flex-col gap-2 px-4 overflow-y-auto w-full"

@@ -14,17 +14,18 @@ const useLoadMore = ({
   useEffect(() => {
     if (skip || !loadMoreElement) return
 
-    const callback = (entries: IntersectionObserverEntry[]) => {
+    const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           onLoadMore()
         }
       })
-    }
-    const observer = new IntersectionObserver(callback, observerOption)
+    }, observerOption)
+
     observer.observe(loadMoreElement)
+
     return () => {
-      if (loadMoreElement) observer.unobserve(loadMoreElement)
+      observer.disconnect()
     }
   }, [skip, loadMoreElement, observerOption, onLoadMore])
 }
@@ -43,17 +44,14 @@ const useKeepScrollPosition = <T extends DependencyList>({
   useLayoutEffect(() => {
     if (!container) return
 
-    // Capture the previous scroll height before new items are added
     if (prevScrollHeight.current === null) {
       prevScrollHeight.current = container.scrollHeight
     }
-    // Adjust scroll position after new items are added
+
     const addedHeight = container.scrollHeight - prevScrollHeight.current
     container.scrollTop += addedHeight
-    // Update the reference to the latest scroll height
     prevScrollHeight.current = container.scrollHeight
 
-    // handle loading media
     const handleOnLoadMedia = (e: Event) => {
       const mediaElementHeight = (e.target as HTMLImageElement).height
       if (mediaElementHeight > mediaInitialHeight) {
@@ -64,10 +62,10 @@ const useKeepScrollPosition = <T extends DependencyList>({
     }
 
     const mediaElements = container.querySelectorAll('img, video')
-    console.log(mediaElements)
     mediaElements.forEach((mediaElement) => {
       mediaElement.addEventListener('load', handleOnLoadMedia)
     })
+
     return () => {
       mediaElements.forEach((mediaElement) => {
         mediaElement.removeEventListener('load', handleOnLoadMedia)

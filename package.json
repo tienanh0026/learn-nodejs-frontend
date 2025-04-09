@@ -17,6 +17,7 @@
     "test-e2e": "yarn playwright test"
   },
   "dependencies": {
+    "@antv/g6": "^5.0.43",
     "@heroicons/react": "^2.1.4",
     "@reduxjs/toolkit": "^2.2.5",
     "@storybook/react-vite": "^8.4.5",
