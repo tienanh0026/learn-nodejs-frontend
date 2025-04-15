@@ -53,16 +53,19 @@ const Ripple = forwardRef<RippleRef, RippleComponent>(
       }
     })
     useEffect(() => {
-      let bounce: number = 1
+      let bounce: ReturnType<typeof setTimeout> | null = null
       if (rippleArr.length > 0) {
-        clearTimeout(bounce)
+        if (bounce !== null) clearTimeout(bounce)
 
         bounce = setTimeout(() => {
-          //   setRippleArr([])
-          clearTimeout(bounce)
+          setRippleArr([])
         }, duration)
       }
-      return () => clearTimeout(bounce)
+      return () => {
+        if (bounce !== null) {
+          clearTimeout(bounce)
+        }
+      }
     }, [duration, rippleArr])
     return (
       <span
