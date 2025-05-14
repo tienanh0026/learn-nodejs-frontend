@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { ExtensionCategory, Graph, register } from '@antv/g6'
 import { ExtendBaseEdge } from './CustomEdge'
+import VirtualChatBox from './ChatTest'
 
 register(ExtensionCategory.EDGE, 'line-arrow', ExtendBaseEdge)
 
@@ -114,7 +115,8 @@ export default function TestPage() {
   return (
     <div>
       Test
-      <div ref={containerRef} className="border border-black"></div>
+      {/* <div ref={containerRef} className="border border-black"></div> */}
+      <VirtualChatBox />
     </div>
   )
 }
