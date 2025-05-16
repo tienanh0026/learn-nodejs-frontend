@@ -1,4 +1,3 @@
-import MessageCard from '@components/Parts/MessageCard'
 import { getMessageList } from '@modules/api/message-list'
 import { getRoomUserList } from '@modules/api/room'
 import { socket } from '@modules/libs/socket'
@@ -25,10 +24,9 @@ import BaseAvatar from '@components/Parts/BaseAvatar'
 import { useGetRoomDetailQuery } from '@modules/redux/api/room'
 import SendMessageInput from '@app/features/Chat/SendMessageInput/SendMessageInput'
 import TypingSection from '@app/features/Chat/TypingSection/TypingSection'
-import InfiniteChatScroll, {
-  ExposeInfiniteChatScrollRef,
-} from '@app/features/Chat/ChatSection/ChatSection'
+import { ExposeInfiniteChatScrollRef } from '@app/features/Chat/ChatSection/ChatSection'
 import { useKeepScrollPosition } from '@components/PartsCollection/InfiniteScroll/hooks'
+import VirtualChatBox from '@components/Parts/VirtualChat'
 
 function RoomChat() {
   // State management
@@ -196,27 +194,34 @@ function RoomChat() {
           )}
         </div>
       </div>
-      <InfiniteChatScroll
+      {/* <InfiniteChatScroll
         onLoadMoreMessage={handleLoadMoreMessage}
         disabledLoadMore={isLoadMore && !!messageList}
         ref={infiniteChatScrollRef}
-      >
-        {isLoadMore && <div>Loading...</div>}
-        {messageList?.map((message) => (
+      > */}
+      {isLoadMore && <div>Loading...</div>}
+      {/* {messageList?.map((message) => (
           <MessageCard message={message} key={message.id} />
-        ))}
-        {userReadList && (
-          <div className="ml-auto flex gap-1">
-            {userReadList.map((readUser) => (
-              <BaseAvatar
-                key={readUser.id + '-read'}
-                name={readUser.id}
-                wrapperClass="w-fit size-5 text-xs"
-              />
-            ))}
-          </div>
-        )}
-      </InfiniteChatScroll>
+        ))} */}
+      {messageList && (
+        <VirtualChatBox
+          messages={messageList}
+          onLoadMessage={handleLoadMoreMessage}
+          isLoading={isLoadMore}
+        />
+      )}
+      {userReadList && (
+        <div className="ml-auto flex gap-1">
+          {userReadList.map((readUser) => (
+            <BaseAvatar
+              key={readUser.id + '-read'}
+              name={readUser.id}
+              wrapperClass="w-fit size-5 text-xs"
+            />
+          ))}
+        </div>
+      )}
+      {/* </InfiniteChatScroll> */}
       <TypingSection typingUser={typingUser} />
       <SendMessageInput roomId={roomId || ''} user={user} />
     </div>
