@@ -63,4 +63,34 @@ const useKeepScrollPosition = <T extends DependencyList>({
   }, [container, isKeep, ...deps])
 }
 
+function useInfiniteScroll({
+  fetchNextPage,
+  hasNextPage,
+  enabled,
+}: {
+  fetchNextPage: () => void
+  hasNextPage: boolean
+  enabled?: boolean
+}) {
+  const observerRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && hasNextPage && enabled) {
+          fetchNextPage()
+        }
+      })
+    })
+    if (observerRef.current) {
+      observer.observe(observerRef.current)
+    }
+    return () => {
+      if (observerRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        observer.unobserve(observerRef.current)
+      }
+    }
+  }, [enabled, fetchNextPage, hasNextPage])
+  return { observerRef }
+}
 export { useLoadMore, useKeepScrollPosition }
